@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Airtable Publisher — INVENTARIO</title>
   <style>
-    /* ─── Custom Properties ─────────────────────────────────────── */
     :root {
       --bg:            #0f0f0f;
       --surface:       #1a1a1a;
@@ -22,8 +21,6 @@
       --vestiaire:     #c9a96e;
       --shopify:       #96bf48;
     }
-
-    /* ─── Reset & Base ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 14px; }
     body {
@@ -35,673 +32,394 @@
       flex-direction: column;
     }
     a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
     button { cursor: pointer; border: none; font-family: inherit; font-size: inherit; }
     input, select { font-family: inherit; font-size: inherit; }
-
-    /* ─── Scrollbar ─────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--surface); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    /* ─── Header ────────────────────────────────────────────────── */
+    /* ─── Header ── */
     #header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       padding: 0 20px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       height: 52px;
       position: sticky;
       top: 0;
       z-index: 100;
       flex-shrink: 0;
     }
-    #header h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      white-space: nowrap;
-    }
+    #header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
     #header h1 span { color: var(--accent); }
     #status-badge {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: var(--surface2);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      transition: all 0.3s;
+      font-size: 0.75rem; padding: 2px 9px; border-radius: 20px;
+      background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+      transition: all .3s;
     }
     #status-badge.success { background: rgba(34,197,94,.15); color: var(--success); border-color: rgba(34,197,94,.3); }
     #status-badge.error   { background: rgba(239,68,68,.15);  color: var(--error);   border-color: rgba(239,68,68,.3); }
     #status-badge.loading { background: rgba(99,102,241,.15); color: var(--accent);  border-color: rgba(99,102,241,.3); }
-    #header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-    #btn-settings {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      transition: all 0.2s;
+    #header-right { margin-left: auto; display: flex; gap: 8px; }
+    .btn-header {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 5px 10px; border-radius: 6px;
+      font-size: 0.8rem; transition: all .2s;
     }
-    #btn-settings:hover { border-color: var(--accent); color: var(--text); }
-    #btn-refresh {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      transition: all 0.2s;
-    }
-    #btn-refresh:hover { border-color: var(--accent); color: var(--text); }
+    .btn-header:hover { border-color: var(--accent); color: var(--text); }
 
-    /* ─── Stats Bar ─────────────────────────────────────────────── */
+    /* ─── Stats Bar ── */
     #stats-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 20px;
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 8px 20px; display: flex; gap: 24px; flex-wrap: wrap; flex-shrink: 0;
     }
-    .stat-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .stat-group { display: flex; align-items: center; gap: 10px; }
     .stat-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 2px 8px;
-      border-radius: 4px;
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; padding: 2px 8px; border-radius: 4px;
     }
-    .stat-label.vinted   { background: rgba(0,150,136,.2);   color: var(--vinted); }
-    .stat-label.vestiaire{ background: rgba(201,169,110,.2);  color: var(--vestiaire); }
-    .stat-label.shopify  { background: rgba(150,191,72,.2);   color: var(--shopify); }
-    .stat-item { font-size: 0.8rem; color: var(--text-muted); }
+    .stat-label.vinted    { background: rgba(0,150,136,.2);   color: var(--vinted); }
+    .stat-label.vestiaire { background: rgba(201,169,110,.2); color: var(--vestiaire); }
+    .stat-label.shopify   { background: rgba(150,191,72,.2);  color: var(--shopify); }
+    .stat-item { font-size: .8rem; color: var(--text-muted); }
     .stat-item strong { color: var(--text); font-weight: 600; }
     .stat-sep { color: var(--border); }
 
-    /* ─── Main ──────────────────────────────────────────────────── */
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 16px 20px 80px;
-      gap: 12px;
-    }
+    /* ─── Main ── */
+    #main { flex: 1; display: flex; flex-direction: column; padding: 16px 20px 80px; gap: 12px; }
 
-    /* ─── Toolbar ───────────────────────────────────────────────── */
-    #toolbar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    /* ─── Toolbar ── */
+    #toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     #search-input {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 7px 12px;
-      border-radius: 6px;
-      width: 220px;
-      transition: border-color 0.2s;
-      outline: none;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 12px; border-radius: 6px;
+      width: 240px; outline: none; transition: border-color .2s;
     }
     #search-input:focus { border-color: var(--accent); }
     #search-input::placeholder { color: var(--text-muted); }
     #status-filter {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 7px 12px;
-      border-radius: 6px;
-      outline: none;
-      cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 7px 12px; border-radius: 6px; outline: none; cursor: pointer;
     }
     #status-filter option { background: var(--surface); }
     .platform-filters { display: flex; gap: 6px; }
     .btn-platform {
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-      opacity: 0.45;
+      padding: 6px 14px; border-radius: 6px; font-size: .8rem; font-weight: 600;
+      border: 1px solid transparent; transition: all .2s; opacity: .4;
     }
-    .btn-platform.vinted   { border-color: var(--vinted);   color: var(--vinted);   background: rgba(0,150,136,.08); }
-    .btn-platform.vestiaire{ border-color: var(--vestiaire); color: var(--vestiaire); background: rgba(201,169,110,.08); }
-    .btn-platform.shopify  { border-color: var(--shopify);  color: var(--shopify);  background: rgba(150,191,72,.08); }
-    .btn-platform.active   { opacity: 1; }
-    .btn-platform.active.vinted   { background: rgba(0,150,136,.25); }
-    .btn-platform.active.vestiaire{ background: rgba(201,169,110,.25); }
-    .btn-platform.active.shopify  { background: rgba(150,191,72,.25); }
-    #record-count {
-      margin-left: auto;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
+    .btn-platform.vinted    { border-color: var(--vinted);    color: var(--vinted);    background: rgba(0,150,136,.08); }
+    .btn-platform.vestiaire { border-color: var(--vestiaire); color: var(--vestiaire); background: rgba(201,169,110,.08); }
+    .btn-platform.shopify   { border-color: var(--shopify);   color: var(--shopify);   background: rgba(150,191,72,.08); }
+    .btn-platform.active { opacity: 1; }
+    .btn-platform.active.vinted    { background: rgba(0,150,136,.25); }
+    .btn-platform.active.vestiaire { background: rgba(201,169,110,.25); }
+    .btn-platform.active.shopify   { background: rgba(150,191,72,.25); }
+    #record-count { margin-left: auto; font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
 
-    /* ─── Table Card ─────────────────────────────────────────────── */
+    /* ─── Table Card ── */
     #table-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      flex: 1;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; flex: 1;
     }
-    #table-wrapper {
-      overflow-x: auto;
-      overflow-y: auto;
-      max-height: calc(100vh - 230px);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 900px;
-    }
+    #table-wrapper { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 240px); }
+    table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+
     thead th {
-      background: var(--surface2);
-      padding: 10px 12px;
-      text-align: left;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-muted);
+      background: var(--surface2); padding: 10px 10px;
+      text-align: left; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted);
       border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      white-space: nowrap;
+      position: sticky; top: 0; white-space: nowrap; z-index: 3;
     }
+    thead th:first-child { position: sticky; left: 0; z-index: 4; background: var(--surface2); }
     thead th.th-vinted    { color: var(--vinted); }
     thead th.th-vestiaire { color: var(--vestiaire); }
     thead th.th-shopify   { color: var(--shopify); }
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
     tbody tr:hover { background: rgba(255,255,255,.03); }
     tbody tr:last-child { border-bottom: none; }
-    tbody td {
-      padding: 9px 12px;
-      font-size: 0.85rem;
-      vertical-align: middle;
-      white-space: nowrap;
-    }
-    td.td-sku {
-      font-weight: 600;
-      color: var(--accent);
-      cursor: pointer;
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    tbody td { padding: 8px 10px; font-size: .82rem; vertical-align: middle; white-space: nowrap; }
+
+    /* Sticky first col */
+    tbody td:first-child { position: sticky; left: 0; background: var(--surface); z-index: 2; }
+    tbody tr:hover td:first-child { background: #1f1f1f; }
+
+    td.td-sku { font-weight: 600; color: var(--accent); cursor: pointer; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
     td.td-sku:hover { text-decoration: underline; }
+    td.td-muted { color: var(--text-muted); }
     td.td-brand { color: var(--text); font-weight: 500; }
     td.td-price { color: var(--success); font-weight: 600; }
-    td.td-stato span {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.72rem;
-      font-weight: 600;
+    td.td-trunc { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Copy cell */
+    .copy-cell { display: flex; align-items: center; gap: 5px; max-width: 200px; }
+    .copy-cell-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; color: var(--text-muted); }
+    .btn-copy-inline {
+      flex-shrink: 0; width: 20px; height: 20px; background: transparent;
+      border: 1px solid transparent; border-radius: 4px;
+      color: var(--text-muted); font-size: .7rem; line-height: 20px;
+      text-align: center; padding: 0; transition: all .15s;
     }
-    td.td-stato .badge-disp { background: rgba(34,197,94,.15); color: var(--success); }
-    td.td-stato .badge-vend { background: rgba(239,68,68,.15);  color: var(--error); }
-    td.td-stato .badge-other{ background: rgba(136,136,136,.15); color: var(--text-muted); }
-    td.td-foto a {
-      font-size: 1.1rem;
-      text-decoration: none;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+    .btn-copy-inline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-copy-inline.copied { color: var(--success); border-color: var(--success); }
+
+    /* Drive button */
+    .btn-drive {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--accent); padding: 3px 8px; border-radius: 4px;
+      font-size: .75rem; transition: all .2s; white-space: nowrap;
     }
-    td.td-foto a:hover { opacity: 1; }
+    .btn-drive:hover { border-color: var(--accent); background: rgba(99,102,241,.1); }
+
+    /* Dettagli preview */
+    .td-det-preview { max-width: 140px; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: .78rem; }
+
     /* Platform checkboxes */
-    .platform-checkbox-cell { text-align: center; position: relative; }
+    .platform-checkbox-cell { text-align: center; position: relative; min-width: 56px; }
     .platform-cb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 4px;
-      border: 2px solid var(--border);
-      background: transparent;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s;
-      vertical-align: middle;
+      appearance: none; -webkit-appearance: none;
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 2px solid var(--border); background: transparent;
+      cursor: pointer; position: relative; transition: all .2s; vertical-align: middle;
     }
     .platform-cb:checked { border-color: transparent; }
-    .platform-cb[data-platform="Vinted"]:checked    { background: var(--vinted); border-color: var(--vinted); }
+    .platform-cb[data-platform="Vinted"]:checked    { background: var(--vinted);    border-color: var(--vinted); }
     .platform-cb[data-platform="Vestiaire"]:checked { background: var(--vestiaire); border-color: var(--vestiaire); }
-    .platform-cb[data-platform="Shopify"]:checked   { background: var(--shopify); border-color: var(--shopify); }
+    .platform-cb[data-platform="Shopify"]:checked   { background: var(--shopify);   border-color: var(--shopify); }
     .platform-cb:checked::after {
-      content: '';
-      position: absolute;
-      left: 3px; top: 0px;
+      content: ''; position: absolute; left: 3px; top: 0px;
       width: 8px; height: 13px;
-      border: 2px solid #fff;
-      border-top: none;
-      border-left: none;
+      border: 2px solid #fff; border-top: none; border-left: none;
       transform: rotate(45deg);
     }
-    .platform-cb:disabled { opacity: 0.5; cursor: not-allowed; }
+    .platform-cb:disabled { opacity: .5; cursor: not-allowed; }
     .cb-spinner {
-      display: none;
-      width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
+      display: none; width: 14px; height: 14px;
+      border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin-abs .6s linear infinite;
+      position: absolute; top: 50%; left: 50%; pointer-events: none;
     }
     .platform-checkbox-cell.loading .platform-cb { opacity: 0; }
-    .platform-checkbox-cell.loading .cb-spinner { display: block; }
-    /* Dettagli button */
+    .platform-checkbox-cell.loading .cb-spinner  { display: block; }
+
+    /* Status badge in table */
+    .status-badge {
+      display: inline-block; padding: 2px 7px; border-radius: 10px;
+      font-size: .7rem; font-weight: 600; white-space: nowrap;
+    }
+
+    /* Detail button */
     .btn-detail {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      transition: all 0.2s;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 3px 8px; border-radius: 4px;
+      font-size: .75rem; transition: all .2s;
     }
     .btn-detail:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* ─── Empty State ────────────────────────────────────────────── */
-    #empty-state {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-    }
-    #empty-state p { margin-top: 8px; font-size: 0.85rem; }
-
-    /* ─── Loading Overlay ────────────────────────────────────────── */
+    /* Empty / Loading */
+    #empty-state { display: none; text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    #empty-state p { margin-top: 8px; font-size: .85rem; }
     #loading-overlay {
-      display: none;
-      position: absolute;
-      inset: 0;
-      background: rgba(15,15,15,.8);
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-      border-radius: 8px;
+      display: none; position: absolute; inset: 0;
+      background: rgba(15,15,15,.8); align-items: center; justify-content: center;
+      z-index: 50; border-radius: 8px;
     }
     #loading-overlay.visible { display: flex; }
     .spinner-large {
       width: 36px; height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .8s linear infinite;
     }
 
-    /* ─── Setup Screen ───────────────────────────────────────────── */
+    /* ─── Setup Screen ── */
     #setup-screen {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.85);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.85); z-index: 200;
+      align-items: center; justify-content: center;
     }
     #setup-screen.visible { display: flex; }
     .setup-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 32px;
-      width: 420px;
-      max-width: 95vw;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px; width: 420px; max-width: 95vw;
     }
-    .setup-card h2 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .setup-card p {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-bottom: 24px;
-    }
+    .setup-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+    .setup-card p  { color: var(--text-muted); font-size: .85rem; margin-bottom: 24px; }
     .form-group { margin-bottom: 16px; }
     .form-group label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
+      display: block; font-size: .78rem; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
     }
     .form-group input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 6px;
-      transition: border-color 0.2s;
-      outline: none;
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: 6px; outline: none; transition: border-color .2s;
     }
     .form-group input:focus { border-color: var(--accent); }
     .form-group input::placeholder { color: var(--text-muted); }
     #btn-save-setup {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      padding: 10px;
-      border-radius: 6px;
-      font-weight: 600;
-      transition: background 0.2s;
-      margin-top: 8px;
+      width: 100%; background: var(--accent); color: #fff;
+      padding: 10px; border-radius: 6px; font-weight: 600; transition: background .2s; margin-top: 8px;
     }
     #btn-save-setup:hover { background: var(--accent-hover); }
-    #setup-error {
-      margin-top: 12px;
-      font-size: 0.8rem;
-      color: var(--error);
-      display: none;
-    }
+    #setup-error { margin-top: 12px; font-size: .8rem; color: var(--error); display: none; }
 
-    /* ─── Modal ──────────────────────────────────────────────────── */
+    /* ─── Modal ── */
     #modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      z-index: 300;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 40px 16px;
-      overflow-y: auto;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.78); z-index: 300;
+      align-items: flex-start; justify-content: center;
+      padding: 40px 16px; overflow-y: auto;
     }
     #modal-backdrop.visible { display: flex; }
     .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: 560px;
-      max-width: 100%;
-      position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; width: 580px; max-width: 100%; position: relative;
     }
     .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 24px 16px;
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 20px 24px 14px; border-bottom: 1px solid var(--border); gap: 12px;
     }
-    .modal-header h3 { font-size: 1rem; font-weight: 700; }
-    .modal-header .modal-sku {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
+    .modal-header-left { flex: 1; min-width: 0; }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .modal-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+    .meta-badge {
+      font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
     }
-    .btn-close-modal {
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 1.4rem;
-      line-height: 1;
-      padding: 0 4px;
-      transition: color 0.2s;
-    }
+    .meta-badge.sku  { background: rgba(99,102,241,.12); color: var(--accent); }
+    .meta-badge.stat { background: rgba(136,136,136,.15); color: var(--text-muted); }
+    .btn-close-modal { background: transparent; color: var(--text-muted); font-size: 1.4rem; line-height: 1; padding: 0 4px; transition: color .2s; flex-shrink: 0; }
     .btn-close-modal:hover { color: var(--text); }
     .modal-body { padding: 20px 24px; }
-    .modal-photo {
-      width: 100%;
-      max-height: 200px;
-      object-fit: contain;
-      border-radius: 6px;
-      background: var(--bg);
-      margin-bottom: 16px;
-    }
-    .modal-photo-link {
-      display: block;
-      text-align: center;
-      padding: 12px;
-      background: var(--bg);
-      border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-    }
     .modal-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .modal-field label {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-    }
-    .modal-field .value {
-      font-size: 0.88rem;
-      color: var(--text);
-      word-break: break-word;
-    }
+    .modal-field label { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 3px; }
+    .modal-field .value { font-size: .88rem; color: var(--text); word-break: break-word; }
     .modal-field.full { grid-column: 1 / -1; }
     .modal-field .value.long {
-      background: var(--bg);
-      padding: 8px 10px;
-      border-radius: 6px;
-      white-space: pre-wrap;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      max-height: 120px;
-      overflow-y: auto;
+      background: var(--bg); padding: 8px 10px; border-radius: 6px;
+      white-space: pre-wrap; font-size: .82rem; line-height: 1.5;
+      max-height: 130px; overflow-y: auto;
     }
     .copy-row { display: flex; align-items: flex-start; gap: 8px; }
     .copy-row .value { flex: 1; }
     .btn-copy {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      white-space: nowrap;
-      transition: all 0.2s;
-      flex-shrink: 0;
-      margin-top: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 4px 8px; border-radius: 4px;
+      font-size: .72rem; white-space: nowrap; transition: all .2s; flex-shrink: 0;
     }
     .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
     .btn-copy.copied { color: var(--success); border-color: var(--success); }
     .modal-platforms {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
     }
     .platform-pill {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: 1px solid transparent;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; border: 1px solid transparent;
     }
     .platform-pill.vinted    { border-color: var(--vinted);    color: var(--vinted);    background: rgba(0,150,136,.1); }
-    .platform-pill.vestiaire { border-color: var(--vestiaire);  color: var(--vestiaire); background: rgba(201,169,110,.1); }
+    .platform-pill.vestiaire { border-color: var(--vestiaire); color: var(--vestiaire); background: rgba(201,169,110,.1); }
     .platform-pill.shopify   { border-color: var(--shopify);   color: var(--shopify);   background: rgba(150,191,72,.1); }
-    .platform-pill.inactive  { opacity: 0.4; }
+    .platform-pill.inactive  { opacity: .35; }
+    .modal-drive-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-top: 14px; padding: 10px;
+      background: transparent; border: 1px solid var(--accent); color: var(--accent);
+      border-radius: 6px; font-weight: 600; font-size: .85rem; transition: all .2s; text-decoration: none;
+    }
+    .modal-drive-btn:hover { background: rgba(99,102,241,.12); }
 
-    /* ─── Toast ──────────────────────────────────────────────────── */
+    /* ─── Toast ── */
     #toast {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
+      position: fixed; bottom: 80px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      opacity: 0;
-      transition: all 0.3s;
-      pointer-events: none;
-      z-index: 400;
-      white-space: nowrap;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 16px; border-radius: 20px;
+      font-size: .82rem; opacity: 0; transition: all .3s;
+      pointer-events: none; z-index: 400; white-space: nowrap;
     }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    #toast.error  { border-color: var(--error);   color: var(--error); }
-    #toast.success{ border-color: var(--success);  color: var(--success); }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.error   { border-color: var(--error);   color: var(--error); }
+    #toast.success { border-color: var(--success); color: var(--success); }
 
-    /* ─── Debug Panel ────────────────────────────────────────────── */
+    /* ─── Debug Panel ── */
     #debug-toggle {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      z-index: 500;
-      transition: all 0.2s;
+      position: fixed; bottom: 16px; right: 16px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 6px 12px; border-radius: 20px;
+      font-size: .78rem; z-index: 500; transition: all .2s;
     }
     #debug-toggle:hover { border-color: var(--accent); color: var(--accent); }
     #debug-panel {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 220px;
-      background: #0a0a0a;
-      border-top: 1px solid var(--border);
-      z-index: 490;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
+      position: fixed; bottom: 0; left: 0; right: 0; height: 220px;
+      background: #0a0a0a; border-top: 1px solid var(--border);
+      z-index: 490; transform: translateY(100%); transition: transform .3s ease;
+      display: flex; flex-direction: column;
     }
     #debug-panel.open { transform: translateY(0); }
     #debug-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 12px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-    #debug-panel-header span {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-    #btn-clear-debug {
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      border: 1px solid var(--border);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
+    #debug-panel-header span { font-size: .72rem; color: var(--text-muted); font-family: monospace; }
+    #btn-clear-debug { background: transparent; color: var(--text-muted); font-size: .72rem; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
     #btn-clear-debug:hover { color: var(--error); border-color: var(--error); }
-    #debug-log {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 12px;
-      font-family: "SF Mono", "Fira Code", monospace;
-      font-size: 0.72rem;
-      line-height: 1.6;
-    }
+    #debug-log { flex: 1; overflow-y: auto; padding: 8px 12px; font-family: "SF Mono", "Fira Code", monospace; font-size: .72rem; line-height: 1.6; }
     .log-success { color: var(--success); }
     .log-error   { color: var(--error); }
     .log-pending { color: var(--warning); }
     .log-info    { color: #888; }
 
-    /* ─── Spinner Animation ──────────────────────────────────────── */
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes spin-abs {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .platform-checkbox-cell .cb-spinner {
-      animation: spin-abs 0.6s linear infinite;
-    }
+    @keyframes spin     { to { transform: rotate(360deg); } }
+    @keyframes spin-abs { to { transform: translate(-50%,-50%) rotate(360deg); } }
 
-    /* ─── Responsive ─────────────────────────────────────────────── */
     @media (max-width: 768px) {
       #toolbar { flex-direction: column; align-items: stretch; }
       #search-input { width: 100%; }
       #record-count { margin-left: 0; }
       .platform-filters { justify-content: center; }
-      #stats-bar { gap: 12px; }
-      .stat-group { flex-wrap: wrap; }
-      .setup-card { padding: 24px 16px; }
       .modal-fields { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ─── Header ──────────────────────────────────────────────────── -->
   <header id="header">
     <h1>Airtable <span>Publisher</span></h1>
     <span id="status-badge">—</span>
     <div id="header-right">
-      <button id="btn-refresh" title="Ricarica records">↻ Refresh</button>
-      <button id="btn-settings" title="Impostazioni">⚙ Config</button>
+      <button id="btn-refresh" class="btn-header">↻ Refresh</button>
+      <button id="btn-settings" class="btn-header">⚙ Config</button>
     </div>
   </header>
 
-  <!-- ─── Stats Bar ────────────────────────────────────────────────── -->
   <div id="stats-bar">
     <div class="stat-group">
       <span class="stat-label vinted">Vinted</span>
-      <span class="stat-item">Pubblicati: <strong id="stat-vinted-pub">—</strong></span>
+      <span class="stat-item">Pub: <strong id="stat-vinted-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-vinted-todo">—</strong></span>
     </div>
     <div class="stat-group">
       <span class="stat-label vestiaire">Vestiaire</span>
-      <span class="stat-item">Pubblicati: <strong id="stat-vestiaire-pub">—</strong></span>
+      <span class="stat-item">Pub: <strong id="stat-vestiaire-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-vestiaire-todo">—</strong></span>
     </div>
     <div class="stat-group">
       <span class="stat-label shopify">Shopify</span>
-      <span class="stat-item">Pubblicati: <strong id="stat-shopify-pub">—</strong></span>
+      <span class="stat-item">Pub: <strong id="stat-shopify-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-shopify-todo">—</strong></span>
     </div>
   </div>
 
-  <!-- ─── Main ─────────────────────────────────────────────────────── -->
   <main id="main">
-
-    <!-- Toolbar -->
     <div id="toolbar">
-      <input id="search-input" type="search" placeholder="Cerca SKU, brand, categoria…" autocomplete="off" />
+      <input id="search-input" type="search" placeholder="Cerca SKU, brand, colore, condizione…" autocomplete="off" />
       <select id="status-filter">
         <option value="">Tutti gli stati</option>
-        <option value="Disponibile">Disponibile</option>
-        <option value="Venduto">Venduto</option>
       </select>
       <div class="platform-filters">
         <button class="btn-platform vinted"    data-platform="Vinted">Vinted</button>
@@ -711,7 +429,6 @@
       <span id="record-count"></span>
     </div>
 
-    <!-- Table Card -->
     <div id="table-card" style="position:relative;">
       <div id="loading-overlay"><div class="spinner-large"></div></div>
       <div id="table-wrapper">
@@ -719,11 +436,17 @@
           <thead>
             <tr>
               <th>SKU</th>
-              <th>Foto</th>
+              <th>Genere</th>
+              <th>Sottocategoria</th>
               <th>Brand</th>
+              <th>Colore</th>
               <th>Taglia</th>
+              <th>Condizione</th>
               <th>Prezzo</th>
-              <th>Stato</th>
+              <th>Titolo</th>
+              <th>Descrizione</th>
+              <th>Dettagli</th>
+              <th>Drive</th>
               <th class="th-vinted">Vinted</th>
               <th class="th-vestiaire">Vestiaire</th>
               <th class="th-shopify">Shopify</th>
@@ -733,15 +456,14 @@
           <tbody id="records-tbody"></tbody>
         </table>
         <div id="empty-state">
-          <div style="font-size:2rem;">📦</div>
+          <div style="font-size:2rem">📦</div>
           <p>Nessun record trovato.</p>
         </div>
       </div>
     </div>
-
   </main>
 
-  <!-- ─── Setup Screen ─────────────────────────────────────────────── -->
+  <!-- Setup -->
   <div id="setup-screen">
     <div class="setup-card">
       <h2>⚙ Configurazione</h2>
@@ -763,13 +485,16 @@
     </div>
   </div>
 
-  <!-- ─── Detail Modal ─────────────────────────────────────────────── -->
+  <!-- Modal -->
   <div id="modal-backdrop">
-    <div class="modal" id="modal">
+    <div class="modal">
       <div class="modal-header">
-        <div>
+        <div class="modal-header-left">
           <h3 id="modal-title">Dettaglio</h3>
-          <div class="modal-sku" id="modal-sku-sub"></div>
+          <div class="modal-meta">
+            <span class="meta-badge sku" id="modal-sku-badge"></span>
+            <span class="meta-badge stat" id="modal-status-badge"></span>
+          </div>
         </div>
         <button class="btn-close-modal" id="btn-close-modal">×</button>
       </div>
@@ -777,10 +502,7 @@
     </div>
   </div>
 
-  <!-- ─── Toast ────────────────────────────────────────────────────── -->
   <div id="toast"></div>
-
-  <!-- ─── Debug Panel ──────────────────────────────────────────────── -->
   <button id="debug-toggle">🐛 Debug</button>
   <div id="debug-panel">
     <div id="debug-panel-header">
@@ -791,89 +513,168 @@
   </div>
 
   <script>
-  /* ═══════════════════════════════════════════════════════════════════
-     CONFIG  — edit this block to change credentials / fields
-  ═══════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════
+     CONFIG  — edit to change credentials
+  ═══════════════════════════════════════════════════════════════ */
   const CONFIG = {
     token:  'patkpQw8xAugxzSEF.b35606ff391e860e8f7a979a634a96bf4c2a0f3ff41911ebea8334ee4eb2f0c0',
     baseId: 'appHQYzjPD56acfMq',
     table:  'INVENTARIO',
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
+     FIELD HELPERS
+     Airtable returns different types for different field kinds:
+     - AI fields (Titolo_Auto, Descrizione_Auto): { state, value, isStale }
+     - Button/URL fields (Foto Drive): { label, url }
+     - Multi-select (Piattaforma): string[]
+     - Plain text/number: string | number
+  ═══════════════════════════════════════════════════════════════ */
+  function fieldText(val) {
+    if (val == null) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number') return String(val);
+    // AI-generated field: { state, value }
+    if (val && typeof val === 'object' && 'value' in val) return val.value || '';
+    // URL/Button field: { label, url }
+    if (val && typeof val === 'object' && 'url' in val) return val.url || '';
+    // Array (multi-select or lookup)
+    if (Array.isArray(val)) return val.join(', ');
+    return String(val);
+  }
+
+  function fieldUrl(val) {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object' && 'url' in val) return val.url || '';
+    return '';
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PLATFORM HELPERS  — Piattaforma is a multi-select array
+  ═══════════════════════════════════════════════════════════════ */
+  function isOnPlatform(fields, platform) {
+    const arr = fields.Piattaforma;
+    if (!Array.isArray(arr)) return false;
+    return arr.includes(platform);
+  }
+
+  function togglePlatform(currentArr, platform, add) {
+    const arr = Array.isArray(currentArr) ? [...currentArr] : [];
+    if (add) {
+      if (!arr.includes(platform)) arr.push(platform);
+    } else {
+      const idx = arr.indexOf(platform);
+      if (idx !== -1) arr.splice(idx, 1);
+    }
+    return arr;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
      STATE
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   const State = {
-    records: [],          // all fetched records
-    filtered: [],         // after applying filters
-    searchQuery: '',
-    statusFilter: '',     // '' | 'Disponibile' | 'Venduto'
-    platformFilters: [],  // active platforms (show items NOT on them)
-    credentials: null,    // { token, baseId, table }
+    records:         [],
+    filtered:        [],
+    searchQuery:     '',
+    statusFilter:    '',
+    platformFilters: [],   // active → show items NOT on those platforms
+    credentials:     null,
+    statusValues:    [],   // populated from loaded records
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
-     STORAGE  — localStorage wrappers
-  ═══════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════
+     STORAGE
+  ═══════════════════════════════════════════════════════════════ */
   const Storage = {
-    KEYS: { creds: 'at_publisher_creds' },
-    loadCredentials() {
-      try {
-        const raw = localStorage.getItem(this.KEYS.creds);
-        return raw ? JSON.parse(raw) : null;
-      } catch { return null; }
+    KEY: 'at_pub_creds_v2',
+    load() {
+      try { const r = localStorage.getItem(this.KEY); return r ? JSON.parse(r) : null; }
+      catch { return null; }
     },
-    saveCredentials(creds) {
-      localStorage.setItem(this.KEYS.creds, JSON.stringify(creds));
-    },
-    clearCredentials() {
-      localStorage.removeItem(this.KEYS.creds);
-    },
+    save(c) { localStorage.setItem(this.KEY, JSON.stringify(c)); },
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
      DEBUG
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   const Debug = {
     log(method, endpoint, status, detail = '') {
-      const el = document.getElementById('debug-log');
+      const el  = document.getElementById('debug-log');
       const now = new Date();
-      const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-      let cls = 'log-info';
-      if (status === 'pending') cls = 'log-pending';
-      else if (typeof status === 'number' && status >= 200 && status < 300) cls = 'log-success';
-      else if (typeof status === 'number' && status >= 400) cls = 'log-error';
-      else if (status === 'ERROR') cls = 'log-error';
-      const preview = detail ? ` | ${String(detail).slice(0, 60)}` : '';
+      const ts  = [now.getHours(), now.getMinutes(), now.getSeconds()]
+                    .map(n => String(n).padStart(2, '0')).join(':');
+      const cls = status === 'pending'                              ? 'log-pending'
+                : (typeof status === 'number' && status >= 200 && status < 300) ? 'log-success'
+                : (typeof status === 'number' && status >= 400)    ? 'log-error'
+                : status === 'ERROR'                               ? 'log-error'
+                : 'log-info';
       const line = document.createElement('div');
-      line.className = cls;
-      line.textContent = `[${ts}] ${method.padEnd(6)} ${endpoint} → ${status}${preview}`;
+      line.className   = cls;
+      line.textContent = `[${ts}] ${String(method).padEnd(6)} ${endpoint} → ${status}` +
+                         (detail ? ` | ${String(detail).slice(0, 70)}` : '');
       el.appendChild(line);
       el.scrollTop = el.scrollHeight;
     },
-    clear() {
-      document.getElementById('debug-log').innerHTML = '';
-    },
-    toggle() {
-      document.getElementById('debug-panel').classList.toggle('open');
-    },
+    clear()  { document.getElementById('debug-log').innerHTML = ''; },
+    toggle() { document.getElementById('debug-panel').classList.toggle('open'); },
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
+     UTILITIES
+  ═══════════════════════════════════════════════════════════════ */
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function trunc(str, len) {
+    if (!str) return '';
+    return str.length > len ? str.slice(0, len) + '…' : str;
+  }
+  function debounce(fn, ms) {
+    let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     TOAST & STATUS BADGE
+  ═══════════════════════════════════════════════════════════════ */
+  let _toastT = null;
+  function showToast(msg, type = 'info', ms = 2600) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = `show ${type}`;
+    clearTimeout(_toastT); _toastT = setTimeout(() => { el.className = ''; }, ms);
+  }
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status-badge');
+    el.textContent = msg; el.className = type;
+  }
+  function setLoading(v) {
+    document.getElementById('loading-overlay').classList.toggle('visible', v);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     STATUS BADGE STYLE HELPER
+  ═══════════════════════════════════════════════════════════════ */
+  const STATUS_COLORS = {
+    'Disponibile': 'background:rgba(34,197,94,.15);color:var(--success)',
+    'Venduto':     'background:rgba(239,68,68,.15);color:var(--error)',
+    'Fare Foto':   'background:rgba(245,158,11,.15);color:var(--warning)',
+    'In Attesa':   'background:rgba(99,102,241,.15);color:var(--accent)',
+  };
+  function statusStyle(val) {
+    return STATUS_COLORS[val] || 'background:rgba(136,136,136,.15);color:var(--text-muted)';
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
      API  — direct Airtable calls
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   const API = {
     get baseUrl() {
       const c = State.credentials;
       return `https://api.airtable.com/v0/${c.baseId}/${encodeURIComponent(c.table)}`;
     },
     get headers() {
-      return {
-        'Authorization': `Bearer ${State.credentials.token}`,
-        'Content-Type': 'application/json',
-      };
+      return { 'Authorization': `Bearer ${State.credentials.token}`, 'Content-Type': 'application/json' };
     },
-
     async request(method, path, body = null) {
       const url = this.baseUrl + (path || '');
       Debug.log(method, path || '/', 'pending');
@@ -881,123 +682,143 @@
         const opts = { method, headers: this.headers };
         if (body) opts.body = JSON.stringify(body);
         const resp = await fetch(url, opts);
-        const data = await resp.json().catch(() => ({}));
+        let data = {};
+        try { data = await resp.json(); } catch { /**/ }
         Debug.log(method, path || '/', resp.status, JSON.stringify(data).slice(0, 80));
         if (!resp.ok) {
-          const msg = data.error?.message || data.error || `HTTP ${resp.status}`;
+          const msg = (data.error && data.error.message) || data.error || `HTTP ${resp.status}`;
           throw { status: resp.status, message: msg, body: data };
         }
         return data;
       } catch (err) {
         if (err.status) throw err;
-        Debug.log(method, path || '/', 'ERROR', err.message);
-        throw { status: 0, message: err.message || 'Network error', body: null };
+        const msg = err.message || 'Network error';
+        Debug.log(method, path || '/', 'ERROR', msg);
+        throw { status: 0, message: msg };
       }
     },
-
     async fetchAllRecords() {
-      let all = [];
-      let offset = null;
+      let all = [], offset = null;
       do {
-        let qs = '?pageSize=100';
-        if (offset) qs += `&offset=${encodeURIComponent(offset)}`;
-        const data = await this.request('GET', qs);
+        const data = await this.request('GET', `?pageSize=100${offset ? '&offset=' + encodeURIComponent(offset) : ''}`);
         all = all.concat(data.records || []);
         offset = data.offset || null;
       } while (offset);
       return all;
     },
-
     async patchRecord(id, fields) {
       return this.request('PATCH', `/${id}`, { fields });
     },
   };
 
-  /* ═══════════════════════════════════════════════════════════════════
-     TOAST
-  ═══════════════════════════════════════════════════════════════════ */
-  let _toastTimer = null;
-  function showToast(msg, type = 'info', duration = 2800) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `show ${type}`;
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(() => { el.className = ''; }, duration);
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════
-     STATUS BADGE
-  ═══════════════════════════════════════════════════════════════════ */
-  function setStatus(msg, type = '') {
-    const el = document.getElementById('status-badge');
-    el.textContent = msg;
-    el.className = type;
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════
-     LOADING OVERLAY
-  ═══════════════════════════════════════════════════════════════════ */
-  function setLoading(visible) {
-    document.getElementById('loading-overlay').classList.toggle('visible', visible);
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════
-     STATS
-  ═══════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════
+     STATS  — based on Piattaforma multi-select
+  ═══════════════════════════════════════════════════════════════ */
   function updateStats(records) {
-    const platforms = ['Vinted', 'Vestiaire', 'Shopify'];
-    const ids = { Vinted: 'vinted', Vestiaire: 'vestiaire', Shopify: 'shopify' };
-    platforms.forEach(p => {
-      const pub  = records.filter(r => r.fields[p] === true).length;
-      const todo = records.filter(r => !r.fields[p]).length;
-      document.getElementById(`stat-${ids[p]}-pub`).textContent  = pub;
-      document.getElementById(`stat-${ids[p]}-todo`).textContent = todo;
+    [['Vinted','vinted'],['Vestiaire','vestiaire'],['Shopify','shopify']].forEach(([p, id]) => {
+      const pub  = records.filter(r =>  isOnPlatform(r.fields, p)).length;
+      const todo = records.filter(r => !isOnPlatform(r.fields, p)).length;
+      document.getElementById(`stat-${id}-pub`).textContent  = pub;
+      document.getElementById(`stat-${id}-todo`).textContent = todo;
     });
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
-     FILTERS
-  ═══════════════════════════════════════════════════════════════════ */
-  function applyFilters() {
-    let records = State.records.slice();
+  /* ═══════════════════════════════════════════════════════════════
+     STATUS FILTER  — populate dropdown from actual data
+  ═══════════════════════════════════════════════════════════════ */
+  function populateStatusFilter(records) {
+    const vals = [...new Set(records.map(r => r.fields.Status).filter(Boolean))].sort();
+    State.statusValues = vals;
+    const sel = document.getElementById('status-filter');
+    // Keep first option (Tutti gli stati), rebuild the rest
+    while (sel.options.length > 1) sel.remove(1);
+    vals.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v;
+      sel.appendChild(o);
+    });
+  }
 
-    // Search
+  /* ═══════════════════════════════════════════════════════════════
+     FILTERS
+  ═══════════════════════════════════════════════════════════════ */
+  function applyFilters() {
+    let recs = State.records.slice();
+
+    // Search across multiple fields
     const q = State.searchQuery.toLowerCase().trim();
     if (q) {
-      records = records.filter(r => {
+      recs = recs.filter(r => {
         const f = r.fields;
-        return [f.SKU, f.Brand, f.Sottocategoria, f.Titolo_Auto]
+        return [f.SKU, f.Brand, f.Sottocategoria, f.Genere, f.Colore, f.Condizione,
+                fieldText(f.Titolo_Auto)]
           .some(v => v && String(v).toLowerCase().includes(q));
       });
     }
 
-    // Status filter
+    // Status filter (uses f.Status)
     if (State.statusFilter) {
-      records = records.filter(r => r.fields.Stato === State.statusFilter);
+      recs = recs.filter(r => r.fields.Status === State.statusFilter);
     }
 
-    // Platform filters (OR logic: show items not on ANY of the active platforms)
+    // Platform filter: show only records NOT on at least one active platform
     if (State.platformFilters.length > 0) {
-      records = records.filter(r =>
-        State.platformFilters.some(p => !r.fields[p])
+      recs = recs.filter(r =>
+        State.platformFilters.some(p => !isOnPlatform(r.fields, p))
       );
     }
 
-    State.filtered = records;
-    renderTable(records);
+    State.filtered = recs;
+    renderTable(recs);
     document.getElementById('record-count').textContent =
-      `${records.length} / ${State.records.length} record`;
+      `${recs.length} / ${State.records.length} record`;
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
+     INLINE COPY CELL
+  ═══════════════════════════════════════════════════════════════ */
+  function makeCopyCell(rawVal, truncLen) {
+    const td   = document.createElement('td');
+    const text = fieldText(rawVal);
+    if (!text) {
+      td.textContent = '—'; td.className = 'td-muted';
+      return td;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'copy-cell';
+
+    const span = document.createElement('span');
+    span.className   = 'copy-cell-text';
+    span.textContent = trunc(text, truncLen || 45);
+    span.title       = text;
+    wrap.appendChild(span);
+
+    const btn = document.createElement('button');
+    btn.className   = 'btn-copy-inline';
+    btn.textContent = '📋';
+    btn.title       = 'Copia testo completo';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓'; btn.classList.add('copied');
+        showToast('Copiato!', 'success', 1600);
+        setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 1500);
+      }).catch(() => showToast('Copia non riuscita', 'error'));
+    });
+    wrap.appendChild(btn);
+    td.appendChild(wrap);
+    return td;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
      TABLE RENDER
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   function renderTable(records) {
     const tbody = document.getElementById('records-tbody');
     const empty = document.getElementById('empty-state');
     tbody.innerHTML = '';
 
-    if (records.length === 0) {
+    if (!records.length) {
       empty.style.display = 'block';
       document.getElementById('records-table').style.display = 'none';
       return;
@@ -1006,231 +827,254 @@
     document.getElementById('records-table').style.display = '';
 
     records.forEach(record => {
-      const f = record.fields;
+      const f  = record.fields;
       const tr = document.createElement('tr');
       tr.dataset.id = record.id;
 
-      // SKU
+      /* 1 — SKU sticky */
       const tdSku = document.createElement('td');
-      tdSku.className = 'td-sku';
+      tdSku.className   = 'td-sku';
       tdSku.textContent = f.SKU || '—';
-      tdSku.title = 'Apri dettaglio';
+      tdSku.title       = 'Apri dettaglio';
       tdSku.addEventListener('click', () => openModal(record));
       tr.appendChild(tdSku);
 
-      // Foto Drive
-      const tdFoto = document.createElement('td');
-      tdFoto.className = 'td-foto';
-      if (f['Foto Drive']) {
-        const a = document.createElement('a');
-        a.href = f['Foto Drive'];
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.title = 'Apri foto';
-        a.textContent = '📷';
-        tdFoto.appendChild(a);
+      /* 2 — Genere */
+      const tdG = document.createElement('td');
+      tdG.className = 'td-muted td-trunc'; tdG.textContent = f.Genere || '—'; tr.appendChild(tdG);
+
+      /* 3 — Sottocategoria */
+      const tdS = document.createElement('td');
+      tdS.className = 'td-muted td-trunc'; tdS.textContent = f.Sottocategoria || '—'; tr.appendChild(tdS);
+
+      /* 4 — Brand */
+      const tdB = document.createElement('td');
+      tdB.className = 'td-brand'; tdB.textContent = f.Brand || '—'; tr.appendChild(tdB);
+
+      /* 5 — Colore */
+      const tdC = document.createElement('td');
+      tdC.className = 'td-muted'; tdC.textContent = f.Colore || '—'; tr.appendChild(tdC);
+
+      /* 6 — Taglia */
+      const tdT = document.createElement('td');
+      tdT.className = 'td-muted'; tdT.textContent = f.Taglia || '—'; tr.appendChild(tdT);
+
+      /* 7 — Condizione */
+      const tdCond = document.createElement('td');
+      tdCond.className = 'td-muted'; tdCond.textContent = f.Condizione || '—'; tr.appendChild(tdCond);
+
+      /* 8 — Prezzo */
+      const tdP = document.createElement('td');
+      tdP.className   = 'td-price';
+      tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—';
+      tr.appendChild(tdP);
+
+      /* 9 — Titolo_Auto (AI field) */
+      tr.appendChild(makeCopyCell(f.Titolo_Auto, 45));
+
+      /* 10 — Descrizione_Auto (AI field) */
+      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 45));
+
+      /* 11 — Dettagli preview */
+      const tdDet = document.createElement('td');
+      tdDet.className   = 'td-det-preview';
+      tdDet.textContent = trunc(fieldText(f.Dettagli) || '', 55) || '—';
+      tdDet.title       = fieldText(f.Dettagli) || '';
+      tr.appendChild(tdDet);
+
+      /* 12 — Drive (Foto Drive field = Button type → {label, url}) */
+      const tdDrive = document.createElement('td');
+      const driveUrl = fieldUrl(f['Foto Drive']);
+      if (driveUrl) {
+        const btn = document.createElement('button');
+        btn.className   = 'btn-drive';
+        btn.textContent = '📁 Apri';
+        btn.title       = driveUrl;
+        btn.addEventListener('click', e => { e.stopPropagation(); openDriveFolder(driveUrl); });
+        tdDrive.appendChild(btn);
       } else {
-        tdFoto.textContent = '—';
-        tdFoto.style.color = 'var(--text-muted)';
+        tdDrive.textContent = '—'; tdDrive.className = 'td-muted';
       }
-      tr.appendChild(tdFoto);
+      tr.appendChild(tdDrive);
 
-      // Brand
-      const tdBrand = document.createElement('td');
-      tdBrand.className = 'td-brand';
-      tdBrand.textContent = f.Brand || '—';
-      tr.appendChild(tdBrand);
-
-      // Taglia
-      const tdTaglia = document.createElement('td');
-      tdTaglia.textContent = f.Taglia || '—';
-      tdTaglia.style.color = 'var(--text-muted)';
-      tr.appendChild(tdTaglia);
-
-      // Prezzo
-      const tdPrezzo = document.createElement('td');
-      tdPrezzo.className = 'td-price';
-      tdPrezzo.textContent = f.Prezzo_Target != null ? `€${f.Prezzo_Target}` : '—';
-      tr.appendChild(tdPrezzo);
-
-      // Stato
-      const tdStato = document.createElement('td');
-      tdStato.className = 'td-stato';
-      const stato = f.Stato || '';
-      const badge = document.createElement('span');
-      if (stato === 'Disponibile') badge.className = 'badge-disp';
-      else if (stato === 'Venduto') badge.className = 'badge-vend';
-      else badge.className = 'badge-other';
-      badge.textContent = stato || '—';
-      tdStato.appendChild(badge);
-      tr.appendChild(tdStato);
-
-      // Platform checkboxes
+      /* 13-15 — Platform checkboxes (via Piattaforma multi-select) */
       ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
-        const td = document.createElement('td');
-        td.className = 'platform-checkbox-cell';
+        const td  = document.createElement('td');
+        td.className        = 'platform-checkbox-cell';
         td.dataset.platform = p;
         td.dataset.recordId = record.id;
 
         const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.className = 'platform-cb';
+        cb.type             = 'checkbox';
+        cb.className        = 'platform-cb';
         cb.dataset.platform = p;
-        cb.checked = !!f[p];
-        cb.addEventListener('change', () => handleCheckboxChange(record.id, p, cb.checked, td, cb));
+        cb.checked          = isOnPlatform(f, p);
+        cb.addEventListener('change', () =>
+          handlePlatformToggle(record.id, p, cb.checked, td, cb)
+        );
         td.appendChild(cb);
 
-        const spinner = document.createElement('div');
-        spinner.className = 'cb-spinner';
-        td.appendChild(spinner);
+        const spin = document.createElement('div');
+        spin.className = 'cb-spinner';
+        td.appendChild(spin);
 
         tr.appendChild(td);
       });
 
-      // Dettagli button
-      const tdAction = document.createElement('td');
+      /* 16 — Modal button */
+      const tdAct = document.createElement('td');
       const btnDet = document.createElement('button');
-      btnDet.className = 'btn-detail';
-      btnDet.textContent = 'Dettagli';
+      btnDet.className   = 'btn-detail';
+      btnDet.textContent = '···';
+      btnDet.title       = 'Apri dettaglio completo';
       btnDet.addEventListener('click', () => openModal(record));
-      tdAction.appendChild(btnDet);
-      tr.appendChild(tdAction);
+      tdAct.appendChild(btnDet);
+      tr.appendChild(tdAct);
 
       tbody.appendChild(tr);
     });
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
-     CHECKBOX HANDLER  — optimistic update
-  ═══════════════════════════════════════════════════════════════════ */
-  async function handleCheckboxChange(recordId, platform, newValue, cellEl, cbEl) {
-    const prev = !newValue; // rollback value
+  /* ═══════════════════════════════════════════════════════════════
+     DRIVE FOLDER OPEN
+  ═══════════════════════════════════════════════════════════════ */
+  function openDriveFolder(url) {
+    if (!url) return;
+    // Extract Google Drive folder ID and construct clean URL
+    const m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    const openUrl = m
+      ? `https://drive.google.com/drive/folders/${m[1]}?usp=sharing`
+      : url;
+    window.open(openUrl, '_blank', 'noopener,noreferrer');
+    Debug.log('DRIVE', '/open', 200, url.slice(0, 60));
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PLATFORM TOGGLE  — patches Piattaforma array on Airtable
+  ═══════════════════════════════════════════════════════════════ */
+  async function handlePlatformToggle(recordId, platform, add, cellEl, cbEl) {
+    const record = State.records.find(r => r.id === recordId);
+    if (!record) return;
+
+    const prevArr  = Array.isArray(record.fields.Piattaforma) ? [...record.fields.Piattaforma] : [];
+    const newArr   = togglePlatform(prevArr, platform, add);
+
+    // Optimistic update
+    record.fields.Piattaforma = newArr;
     cellEl.classList.add('loading');
     cbEl.disabled = true;
-
-    // Optimistic: update in State
-    const record = State.records.find(r => r.id === recordId);
-    if (record) record.fields[platform] = newValue;
     updateStats(State.records);
 
     try {
-      await API.patchRecord(recordId, { [platform]: newValue });
-      showToast(`${platform} ${newValue ? '✓ attivato' : '✗ rimosso'}`, 'success');
+      await API.patchRecord(recordId, { Piattaforma: newArr });
+      showToast(`${platform} ${add ? '✓ aggiunto' : '✗ rimosso'}`, 'success');
     } catch (err) {
       // Rollback
-      if (record) record.fields[platform] = prev;
-      cbEl.checked = prev;
+      record.fields.Piattaforma = prevArr;
+      cbEl.checked = !add;
       updateStats(State.records);
-      showToast(`Errore aggiornamento ${platform}: ${err.message}`, 'error');
+      showToast(`Errore ${platform}: ${err.message}`, 'error');
     } finally {
       cellEl.classList.remove('loading');
       cbEl.disabled = false;
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
      MODAL
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   function openModal(record) {
     const f = record.fields;
+
     document.getElementById('modal-title').textContent = f.Brand || f.SKU || 'Record';
-    document.getElementById('modal-sku-sub').textContent = `SKU: ${f.SKU || '—'}`;
+
+    const skuBadge = document.getElementById('modal-sku-badge');
+    skuBadge.textContent = `SKU: ${f.SKU || '—'}`;
+
+    const stBadge = document.getElementById('modal-status-badge');
+    const status  = f.Status || '';
+    stBadge.textContent   = status;
+    stBadge.style.cssText = status ? `${statusStyle(status)}; padding: 2px 8px; border-radius: 10px; font-size: .72rem; font-weight: 600;` : 'display:none';
+    stBadge.style.display = status ? '' : 'none';
 
     const body = document.getElementById('modal-body');
     body.innerHTML = '';
 
-    // Photo
-    if (f['Foto Drive']) {
-      const isImg = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(f['Foto Drive']);
-      if (isImg) {
-        const img = document.createElement('img');
-        img.src = f['Foto Drive'];
-        img.className = 'modal-photo';
-        img.alt = f.SKU || 'foto';
-        body.appendChild(img);
-      } else {
-        const link = document.createElement('a');
-        link.href = f['Foto Drive'];
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.className = 'modal-photo-link';
-        link.textContent = '📷 Apri foto Drive';
-        body.appendChild(link);
-      }
-    }
-
-    // Fields grid
+    // Simple fields grid
     const grid = document.createElement('div');
     grid.className = 'modal-fields';
-
-    const simpleFields = [
-      ['SKU', f.SKU],
-      ['Genere', f.Genere],
+    [
+      ['Genere',         f.Genere],
       ['Sottocategoria', f.Sottocategoria],
-      ['Brand', f.Brand],
-      ['Colore', f.Colore],
-      ['Taglia', f.Taglia],
-      ['Prezzo Target', f.Prezzo_Target != null ? `€${f.Prezzo_Target}` : null],
-      ['Stato', f.Stato],
-    ];
-
-    simpleFields.forEach(([label, val]) => {
-      if (!val && val !== 0) return;
-      const div = document.createElement('div');
-      div.className = 'modal-field';
-      div.innerHTML = `<label>${label}</label><div class="value">${escapeHtml(String(val))}</div>`;
-      grid.appendChild(div);
+      ['Brand',          f.Brand],
+      ['Colore',         f.Colore],
+      ['Taglia',         f.Taglia],
+      ['Condizione',     f.Condizione],
+      ['Prezzo Target',  f.Prezzo_Target != null ? `€${f.Prezzo_Target}` : null],
+    ].forEach(([label, val]) => {
+      if (val == null || val === '') return;
+      const d = document.createElement('div');
+      d.className = 'modal-field';
+      d.innerHTML = `<label>${esc(label)}</label><div class="value">${esc(String(val))}</div>`;
+      grid.appendChild(d);
     });
+    body.appendChild(grid);
 
     // Long text fields with copy
-    const longFields = [
-      ['Titolo Auto', f.Titolo_Auto],
+    [
+      ['Titolo Auto',      f.Titolo_Auto],
       ['Descrizione Auto', f.Descrizione_Auto],
-      ['Dettagli', f.Dettagli],
-    ];
-    longFields.forEach(([label, val]) => {
-      if (!val) return;
-      const div = document.createElement('div');
-      div.className = 'modal-field full';
+      ['Dettagli',         f.Dettagli],
+    ].forEach(([label, rawVal]) => {
+      const text = fieldText(rawVal);
+      if (!text) return;
+      const d   = document.createElement('div');
+      d.className = 'modal-field full';
       const lbl = document.createElement('label');
-      lbl.textContent = label;
-      div.appendChild(lbl);
+      lbl.textContent = label; d.appendChild(lbl);
 
       const row = document.createElement('div');
       row.className = 'copy-row';
 
-      const valDiv = document.createElement('div');
-      valDiv.className = 'value long';
-      valDiv.textContent = val;
-      row.appendChild(valDiv);
+      const v = document.createElement('div');
+      v.className = 'value long'; v.textContent = text;
+      row.appendChild(v);
 
-      const btnCopy = document.createElement('button');
-      btnCopy.className = 'btn-copy';
-      btnCopy.textContent = 'Copia';
-      btnCopy.addEventListener('click', () => {
-        navigator.clipboard.writeText(val).then(() => {
-          btnCopy.textContent = 'Copiato!';
-          btnCopy.classList.add('copied');
-          setTimeout(() => { btnCopy.textContent = 'Copia'; btnCopy.classList.remove('copied'); }, 2000);
-        });
+      const btn = document.createElement('button');
+      btn.className = 'btn-copy'; btn.textContent = 'Copia';
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = 'Copiato ✓'; btn.classList.add('copied');
+          showToast('Copiato!', 'success', 1600);
+          setTimeout(() => { btn.textContent = 'Copia'; btn.classList.remove('copied'); }, 2000);
+        }).catch(() => showToast('Copia non riuscita', 'error'));
       });
-      row.appendChild(btnCopy);
-      div.appendChild(row);
-      grid.appendChild(div);
+      row.appendChild(btn);
+      d.appendChild(row);
+      body.appendChild(d);
     });
-
-    body.appendChild(grid);
 
     // Platform pills
     const pillsRow = document.createElement('div');
     pillsRow.className = 'modal-platforms';
     ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
+      const on   = isOnPlatform(f, p);
       const pill = document.createElement('div');
-      pill.className = `platform-pill ${p.toLowerCase()}${!f[p] ? ' inactive' : ''}`;
-      pill.innerHTML = `${f[p] ? '✓' : '○'} ${p}`;
+      pill.className   = `platform-pill ${p.toLowerCase()}${!on ? ' inactive' : ''}`;
+      pill.textContent = `${on ? '✓' : '○'} ${p}`;
       pillsRow.appendChild(pill);
     });
     body.appendChild(pillsRow);
+
+    // Drive folder button
+    const driveUrl = fieldUrl(f['Foto Drive']);
+    if (driveUrl) {
+      const btn = document.createElement('button');
+      btn.className   = 'modal-drive-btn';
+      btn.innerHTML   = '📁 Apri cartella Drive';
+      btn.addEventListener('click', () => openDriveFolder(driveUrl));
+      body.appendChild(btn);
+    }
 
     document.getElementById('modal-backdrop').classList.add('visible');
   }
@@ -1239,51 +1083,37 @@
     document.getElementById('modal-backdrop').classList.remove('visible');
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
      SETUP SCREEN
-  ═══════════════════════════════════════════════════════════════════ */
-  function showSetup(prefill = null) {
-    const screen = document.getElementById('setup-screen');
-    screen.classList.add('visible');
-    if (prefill) {
-      document.getElementById('input-token').value   = prefill.token  || '';
-      document.getElementById('input-base-id').value = prefill.baseId || '';
-      document.getElementById('input-table').value   = prefill.table  || '';
-    } else {
-      // prefill from CONFIG defaults
-      document.getElementById('input-token').value   = CONFIG.token;
-      document.getElementById('input-base-id').value = CONFIG.baseId;
-      document.getElementById('input-table').value   = CONFIG.table;
-    }
+  ═══════════════════════════════════════════════════════════════ */
+  function showSetup(prefill) {
+    document.getElementById('setup-screen').classList.add('visible');
+    const c = prefill || { token: CONFIG.token, baseId: CONFIG.baseId, table: CONFIG.table };
+    document.getElementById('input-token').value   = c.token  || '';
+    document.getElementById('input-base-id').value = c.baseId || '';
+    document.getElementById('input-table').value   = c.table  || '';
     document.getElementById('setup-error').style.display = 'none';
   }
-
-  function hideSetup() {
-    document.getElementById('setup-screen').classList.remove('visible');
-  }
-
+  function hideSetup() { document.getElementById('setup-screen').classList.remove('visible'); }
   function saveSetup() {
     const token  = document.getElementById('input-token').value.trim();
     const baseId = document.getElementById('input-base-id').value.trim();
     const table  = document.getElementById('input-table').value.trim();
     const errEl  = document.getElementById('setup-error');
-
     if (!token || !baseId || !table) {
-      errEl.textContent = 'Compila tutti i campi.';
-      errEl.style.display = 'block';
-      return;
+      errEl.textContent = 'Compila tutti i campi.'; errEl.style.display = 'block'; return;
     }
     const creds = { token, baseId, table };
-    Storage.saveCredentials(creds);
+    Storage.save(creds);
     State.credentials = creds;
     errEl.style.display = 'none';
     hideSetup();
     loadRecords();
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════
      LOAD RECORDS
-  ═══════════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
   async function loadRecords() {
     setLoading(true);
     setStatus('Caricamento…', 'loading');
@@ -1291,75 +1121,39 @@
       const records = await API.fetchAllRecords();
       State.records = records;
       updateStats(records);
+      populateStatusFilter(records);
       applyFilters();
       setStatus(`${records.length} record`, 'success');
       showToast(`${records.length} record caricati`, 'success');
     } catch (err) {
       setStatus('Errore', 'error');
-      showToast(`Errore: ${err.message}`, 'error', 5000);
-      Debug.log('LOAD', '/records', err.status || 'ERROR', err.message);
+      showToast(`Errore: ${err.message || err}`, 'error', 5000);
     } finally {
       setLoading(false);
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════════════
-     UTILITY
-  ═══════════════════════════════════════════════════════════════════ */
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function debounce(fn, delay) {
-    let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════
-     EVENT LISTENERS
-  ═══════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', () => {
-
-    // Init credentials
-    const saved = Storage.loadCredentials();
+    const saved = Storage.load();
     State.credentials = saved || { token: CONFIG.token, baseId: CONFIG.baseId, table: CONFIG.table };
 
-    if (!saved) {
-      // First visit: show setup with CONFIG defaults
-      showSetup();
-    } else {
-      loadRecords();
-    }
+    if (!saved) { showSetup(); } else { loadRecords(); }
 
-    // Refresh
     document.getElementById('btn-refresh').addEventListener('click', loadRecords);
-
-    // Settings
-    document.getElementById('btn-settings').addEventListener('click', () => {
-      showSetup(State.credentials);
-    });
-
-    // Save setup
+    document.getElementById('btn-settings').addEventListener('click', () => showSetup(State.credentials));
     document.getElementById('btn-save-setup').addEventListener('click', saveSetup);
-    document.getElementById('input-table').addEventListener('keydown', e => {
-      if (e.key === 'Enter') saveSetup();
-    });
+    document.getElementById('input-table').addEventListener('keydown', e => { if (e.key === 'Enter') saveSetup(); });
 
-    // Search
     document.getElementById('search-input').addEventListener('input',
-      debounce(e => {
-        State.searchQuery = e.target.value;
-        applyFilters();
-      }, 300)
+      debounce(e => { State.searchQuery = e.target.value; applyFilters(); }, 300)
     );
-
-    // Status filter
     document.getElementById('status-filter').addEventListener('change', e => {
-      State.statusFilter = e.target.value;
-      applyFilters();
+      State.statusFilter = e.target.value; applyFilters();
     });
 
-    // Platform filter buttons
     document.querySelectorAll('.btn-platform').forEach(btn => {
       btn.addEventListener('click', () => {
         const p = btn.dataset.platform;
@@ -1373,24 +1167,20 @@
       });
     });
 
-    // Modal close
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
     document.getElementById('modal-backdrop').addEventListener('click', e => {
       if (e.target === document.getElementById('modal-backdrop')) closeModal();
     });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeModal();
-    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    // Debug panel
     document.getElementById('debug-toggle').addEventListener('click', () => Debug.toggle());
     document.getElementById('btn-clear-debug').addEventListener('click', () => Debug.clear());
 
-    // Global errors
-    window.onerror = (msg) => Debug.log('ERROR', 'window', 500, msg);
-    window.onunhandledrejection = (e) => Debug.log('REJECT', 'promise', 500, e.reason?.message || String(e.reason));
+    window.onerror       = (msg, src, line) => Debug.log('ERROR',  `window:${line}`, 500, String(msg).slice(0, 100));
+    window.onunhandledrejection = e          => Debug.log('REJECT', 'promise',        500,
+        ((e.reason && e.reason.message) ? e.reason.message : String(e.reason)).slice(0, 100));
 
-    Debug.log('INIT', 'app', 200, 'Airtable Publisher ready');
+    Debug.log('INIT', 'app', 200, 'Airtable Publisher v3 — ready');
   });
   </script>
 </body>
