@@ -1,1283 +1,1397 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revibe — Upload Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-    <style>
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111111;
-            --bg-tertiary: #1a1a1a;
-            --bg-hover: #222222;
-            --border: #2a2a2a;
-            --border-light: #333333;
-            --text-primary: #f0f0f0;
-            --text-secondary: #888888;
-            --text-muted: #555555;
-            --accent-vinted: #09b1ba;
-            --accent-vestiaire: #d4a853;
-            --accent-shopify: #96bf48;
-            --accent-vinted-bg: rgba(9, 177, 186, 0.08);
-            --accent-vestiaire-bg: rgba(212, 168, 83, 0.08);
-            --accent-shopify-bg: rgba(150, 191, 72, 0.08);
-            --danger: #e54d4d;
-            --success: #4ecf73;
-            --font-main: 'DM Sans', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --radius: 8px;
-            --radius-sm: 5px;
-            --radius-lg: 12px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--font-main);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        /* Setup Screen */
-        .setup-overlay {
-            position: fixed; inset: 0;
-            background: var(--bg-primary);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000;
-        }
-
-        .setup-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 48px;
-            max-width: 480px;
-            width: 90%;
-        }
-
-        .setup-card h1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-        }
-
-        .setup-card .subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 32px;
-        }
-
-        .setup-card label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .setup-card input {
-            width: 100%;
-            padding: 12px 14px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-family: var(--font-mono);
-            font-size: 13px;
-            margin-bottom: 20px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .setup-card input:focus { border-color: var(--text-muted); }
-
-        .setup-card input::placeholder { color: var(--text-muted); }
-
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: var(--radius);
-            font-family: var(--font-main);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-primary:hover { opacity: 0.85; }
-        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .setup-error {
-            background: rgba(229, 77, 77, 0.1);
-            border: 1px solid rgba(229, 77, 77, 0.2);
-            color: var(--danger);
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            margin-bottom: 16px;
-        }
-
-        /* Header */
-        .header {
-            padding: 20px 32px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            background: rgba(10, 10, 10, 0.92);
-            backdrop-filter: blur(12px);
-            z-index: 100;
-        }
-
-        .header-left { display: flex; align-items: center; gap: 20px; }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .logo span { color: var(--text-muted); font-weight: 400; }
-
-        .header-stats {
-            display: flex; gap: 16px;
-            font-size: 12px; color: var(--text-secondary);
-            font-family: var(--font-mono);
-        }
-
-        .header-stats .stat-val { color: var(--text-primary); font-weight: 500; }
-
-        .header-right { display: flex; align-items: center; gap: 12px; }
-
-        .btn-icon {
-            width: 36px; height: 36px;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.15s;
-        }
-
-        .btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-        /* Toolbar */
-        .toolbar {
-            padding: 16px 32px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            position: relative;
-            flex: 0 0 260px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 9px 12px 9px 36px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-family: var(--font-main);
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .search-box input:focus { border-color: var(--text-muted); }
-        .search-box input::placeholder { color: var(--text-muted); }
-
-        .search-box .search-icon {
-            position: absolute;
-            left: 12px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 13px;
-            pointer-events: none;
-        }
-
-        .divider-v {
-            width: 1px; height: 28px;
-            background: var(--border);
-            margin: 0 4px;
-        }
-
-        .filter-group {
-            display: flex; gap: 6px;
-            align-items: center;
-        }
-
-        .filter-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-right: 4px;
-            font-weight: 600;
-        }
-
-        .filter-btn {
-            padding: 7px 16px;
-            border-radius: 100px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            font-family: var(--font-main);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-
-        .filter-btn:hover { border-color: var(--border-light); color: var(--text-primary); }
-
-        .filter-btn.active-vinted {
-            background: var(--accent-vinted-bg);
-            border-color: var(--accent-vinted);
-            color: var(--accent-vinted);
-        }
-
-        .filter-btn.active-vestiaire {
-            background: var(--accent-vestiaire-bg);
-            border-color: var(--accent-vestiaire);
-            color: var(--accent-vestiaire);
-        }
-
-        .filter-btn.active-shopify {
-            background: var(--accent-shopify-bg);
-            border-color: var(--accent-shopify);
-            color: var(--accent-shopify);
-        }
-
-        .filter-btn .count {
-            display: inline-block;
-            margin-left: 6px;
-            padding: 1px 7px;
-            border-radius: 100px;
-            font-size: 10px;
-            font-family: var(--font-mono);
-            background: rgba(255,255,255,0.06);
-        }
-
-        .status-filters {
-            display: flex; gap: 6px;
-            margin-left: auto;
-        }
-
-        .status-chip {
-            padding: 5px 12px;
-            border-radius: 100px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .status-chip:hover { color: var(--text-secondary); border-color: var(--border-light); }
-        .status-chip.active { color: var(--text-primary); background: var(--bg-tertiary); border-color: var(--border-light); }
-
-        /* Table */
-        .table-container {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: calc(100vh - 150px);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        thead th {
-            background: var(--bg-secondary);
-            padding: 10px 14px;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-            user-select: none;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.1s;
-        }
-
-        tbody tr:hover { background: var(--bg-secondary); }
-
-        tbody td {
-            padding: 10px 14px;
-            vertical-align: middle;
-            white-space: nowrap;
-        }
-
-        .cell-sku {
-            font-family: var(--font-mono);
-            font-weight: 500;
-            font-size: 12px;
-            color: var(--text-primary);
-        }
-
-        .cell-brand { font-weight: 600; }
-
-        .cell-link {
-            color: var(--accent-vinted);
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .cell-link:hover { text-decoration: underline; }
-
-        .cell-price {
-            font-family: var(--font-mono);
-            font-weight: 500;
-        }
-
-        .cell-truncate {
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
-        .cell-truncate:hover {
-            white-space: normal;
-            position: relative;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 100px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .badge-disponibile { background: rgba(78, 207, 115, 0.1); color: var(--success); }
-        .badge-venduto { background: rgba(229, 77, 77, 0.1); color: var(--danger); }
-        .badge-default { background: var(--bg-tertiary); color: var(--text-secondary); }
-
-        .badge-genere {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 600;
-        }
-
-        .badge-uomo { background: rgba(100, 149, 237, 0.12); color: #6495ed; }
-        .badge-donna { background: rgba(219, 112, 147, 0.12); color: #db7093; }
-
-        /* Checkboxes */
-        .check-group { display: flex; gap: 8px; align-items: center; }
-
-        .platform-check {
-            position: relative;
-            width: 18px; height: 18px;
-        }
-
-        .platform-check input {
-            position: absolute;
-            opacity: 0;
-            width: 100%; height: 100%;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .platform-check .checkmark {
-            position: absolute; inset: 0;
-            border: 1.5px solid var(--border-light);
-            border-radius: 4px;
-            background: transparent;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .platform-check .checkmark::after {
-            content: '✓';
-            font-size: 11px;
-            color: transparent;
-            transition: color 0.15s;
-            font-weight: 700;
-        }
-
-        .platform-check input:checked + .checkmark.check-vinted {
-            background: var(--accent-vinted-bg);
-            border-color: var(--accent-vinted);
-        }
-        .platform-check input:checked + .checkmark.check-vinted::after { color: var(--accent-vinted); }
-
-        .platform-check input:checked + .checkmark.check-vestiaire {
-            background: var(--accent-vestiaire-bg);
-            border-color: var(--accent-vestiaire);
-        }
-        .platform-check input:checked + .checkmark.check-vestiaire::after { color: var(--accent-vestiaire); }
-
-        .platform-check input:checked + .checkmark.check-shopify {
-            background: var(--accent-shopify-bg);
-            border-color: var(--accent-shopify);
-        }
-        .platform-check input:checked + .checkmark.check-shopify::after { color: var(--accent-shopify); }
-
-        .platform-check.saving .checkmark {
-            opacity: 0.5;
-            animation: pulse 0.6s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulse { from { opacity: 0.3; } to { opacity: 0.7; } }
-
-        .check-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        /* Detail Modal */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center; justify-content: center;
-            z-index: 500;
-            animation: fadeIn 0.15s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .modal-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            max-width: 640px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 32px;
-            animation: slideUp 0.2s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(12px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .modal-header h2 {
-            font-size: 18px; font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .modal-header .sku-tag {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .modal-close {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            width: 32px; height: 32px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s;
-        }
-
-        .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .modal-field label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
-        .modal-field .value {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .modal-desc {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            font-size: 13px;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            white-space: pre-wrap;
-            max-height: 240px;
-            overflow-y: auto;
-        }
-
-        .modal-section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        /* Loading */
-        .loading-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 60vh;
-            gap: 16px;
-        }
-
-        .spinner {
-            width: 28px; height: 28px;
-            border: 2px solid var(--border);
-            border-top-color: var(--text-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .loading-text {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state .icon { font-size: 32px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            padding: 12px 20px;
-            border-radius: var(--radius);
-            font-size: 13px;
-            font-weight: 500;
-            z-index: 600;
-            animation: slideIn 0.2s ease, fadeOut 0.3s ease 2.5s forwards;
-        }
-
-        .toast-success { background: rgba(78, 207, 115, 0.15); color: var(--success); border: 1px solid rgba(78, 207, 115, 0.2); }
-        .toast-error { background: rgba(229, 77, 77, 0.15); color: var(--danger); border: 1px solid rgba(229, 77, 77, 0.2); }
-
-        @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; } }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header { padding: 16px; }
-            .toolbar { padding: 12px 16px; }
-            .search-box { flex: 1 1 100%; }
-            .filter-group { flex-wrap: wrap; }
-            .modal-grid { grid-template-columns: 1fr; }
-            .header-stats { display: none; }
-            .status-filters { display: none; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airtable Publisher — INVENTARIO</title>
+  <style>
+    /* ─── Custom Properties ─────────────────────────────────────── */
+    :root {
+      --bg:            #0f0f0f;
+      --surface:       #1a1a1a;
+      --surface2:      #212121;
+      --border:        #2a2a2a;
+      --accent:        #6366f1;
+      --accent-hover:  #4f46e5;
+      --text:          #e2e2e2;
+      --text-muted:    #888;
+      --success:       #22c55e;
+      --error:         #ef4444;
+      --warning:       #f59e0b;
+      --vinted:        #009688;
+      --vestiaire:     #c9a96e;
+      --shopify:       #96bf48;
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { cursor: pointer; border: none; font-family: inherit; font-size: inherit; }
+    input, select { font-family: inherit; font-size: inherit; }
+
+    /* ─── Scrollbar ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ─── Header ────────────────────────────────────────────────── */
+    #header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    #header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    #header h1 span { color: var(--accent); }
+    #status-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    #status-badge.success { background: rgba(34,197,94,.15); color: var(--success); border-color: rgba(34,197,94,.3); }
+    #status-badge.error   { background: rgba(239,68,68,.15);  color: var(--error);   border-color: rgba(239,68,68,.3); }
+    #status-badge.loading { background: rgba(99,102,241,.15); color: var(--accent);  border-color: rgba(99,102,241,.3); }
+    #header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    #btn-settings {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    #btn-settings:hover { border-color: var(--accent); color: var(--text); }
+    #btn-refresh {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    #btn-refresh:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ─── Stats Bar ─────────────────────────────────────────────── */
+    #stats-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 20px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .stat-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .stat-label.vinted   { background: rgba(0,150,136,.2);   color: var(--vinted); }
+    .stat-label.vestiaire{ background: rgba(201,169,110,.2);  color: var(--vestiaire); }
+    .stat-label.shopify  { background: rgba(150,191,72,.2);   color: var(--shopify); }
+    .stat-item { font-size: 0.8rem; color: var(--text-muted); }
+    .stat-item strong { color: var(--text); font-weight: 600; }
+    .stat-sep { color: var(--border); }
+
+    /* ─── Main ──────────────────────────────────────────────────── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 20px 80px;
+      gap: 12px;
+    }
+
+    /* ─── Toolbar ───────────────────────────────────────────────── */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #search-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 6px;
+      width: 220px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    #search-input:focus { border-color: var(--accent); }
+    #search-input::placeholder { color: var(--text-muted); }
+    #status-filter {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+    #status-filter option { background: var(--surface); }
+    .platform-filters { display: flex; gap: 6px; }
+    .btn-platform {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      opacity: 0.45;
+    }
+    .btn-platform.vinted   { border-color: var(--vinted);   color: var(--vinted);   background: rgba(0,150,136,.08); }
+    .btn-platform.vestiaire{ border-color: var(--vestiaire); color: var(--vestiaire); background: rgba(201,169,110,.08); }
+    .btn-platform.shopify  { border-color: var(--shopify);  color: var(--shopify);  background: rgba(150,191,72,.08); }
+    .btn-platform.active   { opacity: 1; }
+    .btn-platform.active.vinted   { background: rgba(0,150,136,.25); }
+    .btn-platform.active.vestiaire{ background: rgba(201,169,110,.25); }
+    .btn-platform.active.shopify  { background: rgba(150,191,72,.25); }
+    #record-count {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ─── Table Card ─────────────────────────────────────────────── */
+    #table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      flex: 1;
+    }
+    #table-wrapper {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 230px);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    thead th {
+      background: var(--surface2);
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      white-space: nowrap;
+    }
+    thead th.th-vinted    { color: var(--vinted); }
+    thead th.th-vestiaire { color: var(--vestiaire); }
+    thead th.th-shopify   { color: var(--shopify); }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td {
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    td.td-sku {
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    td.td-sku:hover { text-decoration: underline; }
+    td.td-brand { color: var(--text); font-weight: 500; }
+    td.td-price { color: var(--success); font-weight: 600; }
+    td.td-stato span {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    td.td-stato .badge-disp { background: rgba(34,197,94,.15); color: var(--success); }
+    td.td-stato .badge-vend { background: rgba(239,68,68,.15);  color: var(--error); }
+    td.td-stato .badge-other{ background: rgba(136,136,136,.15); color: var(--text-muted); }
+    td.td-foto a {
+      font-size: 1.1rem;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    td.td-foto a:hover { opacity: 1; }
+    /* Platform checkboxes */
+    .platform-checkbox-cell { text-align: center; position: relative; }
+    .platform-cb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      vertical-align: middle;
+    }
+    .platform-cb:checked { border-color: transparent; }
+    .platform-cb[data-platform="Vinted"]:checked    { background: var(--vinted); border-color: var(--vinted); }
+    .platform-cb[data-platform="Vestiaire"]:checked { background: var(--vestiaire); border-color: var(--vestiaire); }
+    .platform-cb[data-platform="Shopify"]:checked   { background: var(--shopify); border-color: var(--shopify); }
+    .platform-cb:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 0px;
+      width: 8px; height: 13px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    .platform-cb:disabled { opacity: 0.5; cursor: not-allowed; }
+    .cb-spinner {
+      display: none;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .platform-checkbox-cell.loading .platform-cb { opacity: 0; }
+    .platform-checkbox-cell.loading .cb-spinner { display: block; }
+    /* Dettagli button */
+    .btn-detail {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    .btn-detail:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── Empty State ────────────────────────────────────────────── */
+    #empty-state {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    #empty-state p { margin-top: 8px; font-size: 0.85rem; }
+
+    /* ─── Loading Overlay ────────────────────────────────────────── */
+    #loading-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15,15,15,.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      border-radius: 8px;
+    }
+    #loading-overlay.visible { display: flex; }
+    .spinner-large {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ─── Setup Screen ───────────────────────────────────────────── */
+    #setup-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    #setup-screen.visible { display: flex; }
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      width: 420px;
+      max-width: 95vw;
+    }
+    .setup-card h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .setup-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 6px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-group input::placeholder { color: var(--text-muted); }
+    #btn-save-setup {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+    #btn-save-setup:hover { background: var(--accent-hover); }
+    #setup-error {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--error);
+      display: none;
+    }
+
+    /* ─── Modal ──────────────────────────────────────────────────── */
+    #modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 300;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    #modal-backdrop.visible { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 560px;
+      max-width: 100%;
+      position: relative;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .modal-header .modal-sku {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .btn-close-modal {
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    .btn-close-modal:hover { color: var(--text); }
+    .modal-body { padding: 20px 24px; }
+    .modal-photo {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: var(--bg);
+      margin-bottom: 16px;
+    }
+    .modal-photo-link {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+    .modal-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .modal-field .value {
+      font-size: 0.88rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-field .value.long {
+      background: var(--bg);
+      padding: 8px 10px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .copy-row { display: flex; align-items: flex-start; gap: 8px; }
+    .copy-row .value { flex: 1; }
+    .btn-copy {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+    .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-copy.copied { color: var(--success); border-color: var(--success); }
+    .modal-platforms {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .platform-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .platform-pill.vinted    { border-color: var(--vinted);    color: var(--vinted);    background: rgba(0,150,136,.1); }
+    .platform-pill.vestiaire { border-color: var(--vestiaire);  color: var(--vestiaire); background: rgba(201,169,110,.1); }
+    .platform-pill.shopify   { border-color: var(--shopify);   color: var(--shopify);   background: rgba(150,191,72,.1); }
+    .platform-pill.inactive  { opacity: 0.4; }
+
+    /* ─── Toast ──────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 400;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.error  { border-color: var(--error);   color: var(--error); }
+    #toast.success{ border-color: var(--success);  color: var(--success); }
+
+    /* ─── Debug Panel ────────────────────────────────────────────── */
+    #debug-toggle {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      z-index: 500;
+      transition: all 0.2s;
+    }
+    #debug-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    #debug-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 220px;
+      background: #0a0a0a;
+      border-top: 1px solid var(--border);
+      z-index: 490;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    #debug-panel.open { transform: translateY(0); }
+    #debug-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #debug-panel-header span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    #btn-clear-debug {
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    #btn-clear-debug:hover { color: var(--error); border-color: var(--error); }
+    #debug-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.72rem;
+      line-height: 1.6;
+    }
+    .log-success { color: var(--success); }
+    .log-error   { color: var(--error); }
+    .log-pending { color: var(--warning); }
+    .log-info    { color: #888; }
+
+    /* ─── Spinner Animation ──────────────────────────────────────── */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-abs {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .platform-checkbox-cell .cb-spinner {
+      animation: spin-abs 0.6s linear infinite;
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #toolbar { flex-direction: column; align-items: stretch; }
+      #search-input { width: 100%; }
+      #record-count { margin-left: 0; }
+      .platform-filters { justify-content: center; }
+      #stats-bar { gap: 12px; }
+      .stat-group { flex-wrap: wrap; }
+      .setup-card { padding: 24px 16px; }
+      .modal-fields { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useCallback, useRef, useMemo } = React;
+  <!-- ─── Header ──────────────────────────────────────────────────── -->
+  <header id="header">
+    <h1>Airtable <span>Publisher</span></h1>
+    <span id="status-badge">—</span>
+    <div id="header-right">
+      <button id="btn-refresh" title="Ricarica records">↻ Refresh</button>
+      <button id="btn-settings" title="Impostazioni">⚙ Config</button>
+    </div>
+  </header>
 
-        // ─── Airtable API Helper ─────────────────────────────────
-        class AirtableClient {
-            constructor(token, baseId, tableName) {
-                this.token = token;
-                this.baseId = baseId;
-                this.tableName = tableName;
-                this.baseUrl = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}`;
-            }
+  <!-- ─── Stats Bar ────────────────────────────────────────────────── -->
+  <div id="stats-bar">
+    <div class="stat-group">
+      <span class="stat-label vinted">Vinted</span>
+      <span class="stat-item">Pubblicati: <strong id="stat-vinted-pub">—</strong></span>
+      <span class="stat-sep">·</span>
+      <span class="stat-item">Da caricare: <strong id="stat-vinted-todo">—</strong></span>
+    </div>
+    <div class="stat-group">
+      <span class="stat-label vestiaire">Vestiaire</span>
+      <span class="stat-item">Pubblicati: <strong id="stat-vestiaire-pub">—</strong></span>
+      <span class="stat-sep">·</span>
+      <span class="stat-item">Da caricare: <strong id="stat-vestiaire-todo">—</strong></span>
+    </div>
+    <div class="stat-group">
+      <span class="stat-label shopify">Shopify</span>
+      <span class="stat-item">Pubblicati: <strong id="stat-shopify-pub">—</strong></span>
+      <span class="stat-sep">·</span>
+      <span class="stat-item">Da caricare: <strong id="stat-shopify-todo">—</strong></span>
+    </div>
+  </div>
 
-            async fetchAll() {
-                let allRecords = [];
-                let offset = null;
+  <!-- ─── Main ─────────────────────────────────────────────────────── -->
+  <main id="main">
 
-                do {
-                    const url = new URL(this.baseUrl);
-                    if (offset) url.searchParams.set('offset', offset);
-                    url.searchParams.set('pageSize', '100');
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <input id="search-input" type="search" placeholder="Cerca SKU, brand, categoria…" autocomplete="off" />
+      <select id="status-filter">
+        <option value="">Tutti gli stati</option>
+        <option value="Disponibile">Disponibile</option>
+        <option value="Venduto">Venduto</option>
+      </select>
+      <div class="platform-filters">
+        <button class="btn-platform vinted"    data-platform="Vinted">Vinted</button>
+        <button class="btn-platform vestiaire" data-platform="Vestiaire">Vestiaire</button>
+        <button class="btn-platform shopify"   data-platform="Shopify">Shopify</button>
+      </div>
+      <span id="record-count"></span>
+    </div>
 
-                    const res = await fetch(url.toString(), {
-                        headers: { Authorization: `Bearer ${this.token}` }
-                    });
+    <!-- Table Card -->
+    <div id="table-card" style="position:relative;">
+      <div id="loading-overlay"><div class="spinner-large"></div></div>
+      <div id="table-wrapper">
+        <table id="records-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Foto</th>
+              <th>Brand</th>
+              <th>Taglia</th>
+              <th>Prezzo</th>
+              <th>Stato</th>
+              <th class="th-vinted">Vinted</th>
+              <th class="th-vestiaire">Vestiaire</th>
+              <th class="th-shopify">Shopify</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+        <div id="empty-state">
+          <div style="font-size:2rem;">📦</div>
+          <p>Nessun record trovato.</p>
+        </div>
+      </div>
+    </div>
 
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({}));
-                        throw new Error(err.error?.message || `HTTP ${res.status}`);
-                    }
+  </main>
 
-                    const data = await res.json();
-                    allRecords = allRecords.concat(data.records);
-                    offset = data.offset;
-                } while (offset);
+  <!-- ─── Setup Screen ─────────────────────────────────────────────── -->
+  <div id="setup-screen">
+    <div class="setup-card">
+      <h2>⚙ Configurazione</h2>
+      <p>Inserisci le credenziali Airtable. Vengono salvate nel browser (localStorage).</p>
+      <div class="form-group">
+        <label>Airtable Token</label>
+        <input id="input-token" type="password" placeholder="patXXXXXX.XXXXXXXX" />
+      </div>
+      <div class="form-group">
+        <label>Base ID</label>
+        <input id="input-base-id" type="text" placeholder="appXXXXXXXXXXXXXX" />
+      </div>
+      <div class="form-group">
+        <label>Table Name</label>
+        <input id="input-table" type="text" placeholder="INVENTARIO" />
+      </div>
+      <button id="btn-save-setup">Save &amp; Connect</button>
+      <div id="setup-error"></div>
+    </div>
+  </div>
 
-                return allRecords;
-            }
+  <!-- ─── Detail Modal ─────────────────────────────────────────────── -->
+  <div id="modal-backdrop">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-title">Dettaglio</h3>
+          <div class="modal-sku" id="modal-sku-sub"></div>
+        </div>
+        <button class="btn-close-modal" id="btn-close-modal">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
 
-            async updateRecord(recordId, fields) {
-                const res = await fetch(`${this.baseUrl}/${recordId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        Authorization: `Bearer ${this.token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ fields })
-                });
+  <!-- ─── Toast ────────────────────────────────────────────────────── -->
+  <div id="toast"></div>
 
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.error?.message || `HTTP ${res.status}`);
-                }
+  <!-- ─── Debug Panel ──────────────────────────────────────────────── -->
+  <button id="debug-toggle">🐛 Debug</button>
+  <div id="debug-panel">
+    <div id="debug-panel-header">
+      <span>DEBUG LOG</span>
+      <button id="btn-clear-debug">🗑 Clear</button>
+    </div>
+    <div id="debug-log"></div>
+  </div>
 
-                return await res.json();
-            }
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════
+     CONFIG  — edit this block to change credentials / fields
+  ═══════════════════════════════════════════════════════════════════ */
+  const CONFIG = {
+    token:  'patkpQw8xAugxzSEF.b35606ff391e860e8f7a979a634a96bf4c2a0f3ff41911ebea8334ee4eb2f0c0',
+    baseId: 'appHQYzjPD56acfMq',
+    table:  'INVENTARIO',
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════════════════════════ */
+  const State = {
+    records: [],          // all fetched records
+    filtered: [],         // after applying filters
+    searchQuery: '',
+    statusFilter: '',     // '' | 'Disponibile' | 'Venduto'
+    platformFilters: [],  // active platforms (show items NOT on them)
+    credentials: null,    // { token, baseId, table }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     STORAGE  — localStorage wrappers
+  ═══════════════════════════════════════════════════════════════════ */
+  const Storage = {
+    KEYS: { creds: 'at_publisher_creds' },
+    loadCredentials() {
+      try {
+        const raw = localStorage.getItem(this.KEYS.creds);
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    },
+    saveCredentials(creds) {
+      localStorage.setItem(this.KEYS.creds, JSON.stringify(creds));
+    },
+    clearCredentials() {
+      localStorage.removeItem(this.KEYS.creds);
+    },
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     DEBUG
+  ═══════════════════════════════════════════════════════════════════ */
+  const Debug = {
+    log(method, endpoint, status, detail = '') {
+      const el = document.getElementById('debug-log');
+      const now = new Date();
+      const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+      let cls = 'log-info';
+      if (status === 'pending') cls = 'log-pending';
+      else if (typeof status === 'number' && status >= 200 && status < 300) cls = 'log-success';
+      else if (typeof status === 'number' && status >= 400) cls = 'log-error';
+      else if (status === 'ERROR') cls = 'log-error';
+      const preview = detail ? ` | ${String(detail).slice(0, 60)}` : '';
+      const line = document.createElement('div');
+      line.className = cls;
+      line.textContent = `[${ts}] ${method.padEnd(6)} ${endpoint} → ${status}${preview}`;
+      el.appendChild(line);
+      el.scrollTop = el.scrollHeight;
+    },
+    clear() {
+      document.getElementById('debug-log').innerHTML = '';
+    },
+    toggle() {
+      document.getElementById('debug-panel').classList.toggle('open');
+    },
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     API  — direct Airtable calls
+  ═══════════════════════════════════════════════════════════════════ */
+  const API = {
+    get baseUrl() {
+      const c = State.credentials;
+      return `https://api.airtable.com/v0/${c.baseId}/${encodeURIComponent(c.table)}`;
+    },
+    get headers() {
+      return {
+        'Authorization': `Bearer ${State.credentials.token}`,
+        'Content-Type': 'application/json',
+      };
+    },
+
+    async request(method, path, body = null) {
+      const url = this.baseUrl + (path || '');
+      Debug.log(method, path || '/', 'pending');
+      try {
+        const opts = { method, headers: this.headers };
+        if (body) opts.body = JSON.stringify(body);
+        const resp = await fetch(url, opts);
+        const data = await resp.json().catch(() => ({}));
+        Debug.log(method, path || '/', resp.status, JSON.stringify(data).slice(0, 80));
+        if (!resp.ok) {
+          const msg = data.error?.message || data.error || `HTTP ${resp.status}`;
+          throw { status: resp.status, message: msg, body: data };
         }
+        return data;
+      } catch (err) {
+        if (err.status) throw err;
+        Debug.log(method, path || '/', 'ERROR', err.message);
+        throw { status: 0, message: err.message || 'Network error', body: null };
+      }
+    },
 
-        // ─── Toast Component ─────────────────────────────────────
-        function Toast({ message, type, onDone }) {
-            useEffect(() => {
-                const t = setTimeout(onDone, 3000);
-                return () => clearTimeout(t);
-            }, []);
+    async fetchAllRecords() {
+      let all = [];
+      let offset = null;
+      do {
+        let qs = '?pageSize=100';
+        if (offset) qs += `&offset=${encodeURIComponent(offset)}`;
+        const data = await this.request('GET', qs);
+        all = all.concat(data.records || []);
+        offset = data.offset || null;
+      } while (offset);
+      return all;
+    },
 
-            return <div className={`toast toast-${type}`}>{message}</div>;
+    async patchRecord(id, fields) {
+      return this.request('PATCH', `/${id}`, { fields });
+    },
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════════════════════════════ */
+  let _toastTimer = null;
+  function showToast(msg, type = 'info', duration = 2800) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { el.className = ''; }, duration);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     STATUS BADGE
+  ═══════════════════════════════════════════════════════════════════ */
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status-badge');
+    el.textContent = msg;
+    el.className = type;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LOADING OVERLAY
+  ═══════════════════════════════════════════════════════════════════ */
+  function setLoading(visible) {
+    document.getElementById('loading-overlay').classList.toggle('visible', visible);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     STATS
+  ═══════════════════════════════════════════════════════════════════ */
+  function updateStats(records) {
+    const platforms = ['Vinted', 'Vestiaire', 'Shopify'];
+    const ids = { Vinted: 'vinted', Vestiaire: 'vestiaire', Shopify: 'shopify' };
+    platforms.forEach(p => {
+      const pub  = records.filter(r => r.fields[p] === true).length;
+      const todo = records.filter(r => !r.fields[p]).length;
+      document.getElementById(`stat-${ids[p]}-pub`).textContent  = pub;
+      document.getElementById(`stat-${ids[p]}-todo`).textContent = todo;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     FILTERS
+  ═══════════════════════════════════════════════════════════════════ */
+  function applyFilters() {
+    let records = State.records.slice();
+
+    // Search
+    const q = State.searchQuery.toLowerCase().trim();
+    if (q) {
+      records = records.filter(r => {
+        const f = r.fields;
+        return [f.SKU, f.Brand, f.Sottocategoria, f.Titolo_Auto]
+          .some(v => v && String(v).toLowerCase().includes(q));
+      });
+    }
+
+    // Status filter
+    if (State.statusFilter) {
+      records = records.filter(r => r.fields.Stato === State.statusFilter);
+    }
+
+    // Platform filters (OR logic: show items not on ANY of the active platforms)
+    if (State.platformFilters.length > 0) {
+      records = records.filter(r =>
+        State.platformFilters.some(p => !r.fields[p])
+      );
+    }
+
+    State.filtered = records;
+    renderTable(records);
+    document.getElementById('record-count').textContent =
+      `${records.length} / ${State.records.length} record`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     TABLE RENDER
+  ═══════════════════════════════════════════════════════════════════ */
+  function renderTable(records) {
+    const tbody = document.getElementById('records-tbody');
+    const empty = document.getElementById('empty-state');
+    tbody.innerHTML = '';
+
+    if (records.length === 0) {
+      empty.style.display = 'block';
+      document.getElementById('records-table').style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    document.getElementById('records-table').style.display = '';
+
+    records.forEach(record => {
+      const f = record.fields;
+      const tr = document.createElement('tr');
+      tr.dataset.id = record.id;
+
+      // SKU
+      const tdSku = document.createElement('td');
+      tdSku.className = 'td-sku';
+      tdSku.textContent = f.SKU || '—';
+      tdSku.title = 'Apri dettaglio';
+      tdSku.addEventListener('click', () => openModal(record));
+      tr.appendChild(tdSku);
+
+      // Foto Drive
+      const tdFoto = document.createElement('td');
+      tdFoto.className = 'td-foto';
+      if (f['Foto Drive']) {
+        const a = document.createElement('a');
+        a.href = f['Foto Drive'];
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.title = 'Apri foto';
+        a.textContent = '📷';
+        tdFoto.appendChild(a);
+      } else {
+        tdFoto.textContent = '—';
+        tdFoto.style.color = 'var(--text-muted)';
+      }
+      tr.appendChild(tdFoto);
+
+      // Brand
+      const tdBrand = document.createElement('td');
+      tdBrand.className = 'td-brand';
+      tdBrand.textContent = f.Brand || '—';
+      tr.appendChild(tdBrand);
+
+      // Taglia
+      const tdTaglia = document.createElement('td');
+      tdTaglia.textContent = f.Taglia || '—';
+      tdTaglia.style.color = 'var(--text-muted)';
+      tr.appendChild(tdTaglia);
+
+      // Prezzo
+      const tdPrezzo = document.createElement('td');
+      tdPrezzo.className = 'td-price';
+      tdPrezzo.textContent = f.Prezzo_Target != null ? `€${f.Prezzo_Target}` : '—';
+      tr.appendChild(tdPrezzo);
+
+      // Stato
+      const tdStato = document.createElement('td');
+      tdStato.className = 'td-stato';
+      const stato = f.Stato || '';
+      const badge = document.createElement('span');
+      if (stato === 'Disponibile') badge.className = 'badge-disp';
+      else if (stato === 'Venduto') badge.className = 'badge-vend';
+      else badge.className = 'badge-other';
+      badge.textContent = stato || '—';
+      tdStato.appendChild(badge);
+      tr.appendChild(tdStato);
+
+      // Platform checkboxes
+      ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
+        const td = document.createElement('td');
+        td.className = 'platform-checkbox-cell';
+        td.dataset.platform = p;
+        td.dataset.recordId = record.id;
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'platform-cb';
+        cb.dataset.platform = p;
+        cb.checked = !!f[p];
+        cb.addEventListener('change', () => handleCheckboxChange(record.id, p, cb.checked, td, cb));
+        td.appendChild(cb);
+
+        const spinner = document.createElement('div');
+        spinner.className = 'cb-spinner';
+        td.appendChild(spinner);
+
+        tr.appendChild(td);
+      });
+
+      // Dettagli button
+      const tdAction = document.createElement('td');
+      const btnDet = document.createElement('button');
+      btnDet.className = 'btn-detail';
+      btnDet.textContent = 'Dettagli';
+      btnDet.addEventListener('click', () => openModal(record));
+      tdAction.appendChild(btnDet);
+      tr.appendChild(tdAction);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     CHECKBOX HANDLER  — optimistic update
+  ═══════════════════════════════════════════════════════════════════ */
+  async function handleCheckboxChange(recordId, platform, newValue, cellEl, cbEl) {
+    const prev = !newValue; // rollback value
+    cellEl.classList.add('loading');
+    cbEl.disabled = true;
+
+    // Optimistic: update in State
+    const record = State.records.find(r => r.id === recordId);
+    if (record) record.fields[platform] = newValue;
+    updateStats(State.records);
+
+    try {
+      await API.patchRecord(recordId, { [platform]: newValue });
+      showToast(`${platform} ${newValue ? '✓ attivato' : '✗ rimosso'}`, 'success');
+    } catch (err) {
+      // Rollback
+      if (record) record.fields[platform] = prev;
+      cbEl.checked = prev;
+      updateStats(State.records);
+      showToast(`Errore aggiornamento ${platform}: ${err.message}`, 'error');
+    } finally {
+      cellEl.classList.remove('loading');
+      cbEl.disabled = false;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     MODAL
+  ═══════════════════════════════════════════════════════════════════ */
+  function openModal(record) {
+    const f = record.fields;
+    document.getElementById('modal-title').textContent = f.Brand || f.SKU || 'Record';
+    document.getElementById('modal-sku-sub').textContent = `SKU: ${f.SKU || '—'}`;
+
+    const body = document.getElementById('modal-body');
+    body.innerHTML = '';
+
+    // Photo
+    if (f['Foto Drive']) {
+      const isImg = /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(f['Foto Drive']);
+      if (isImg) {
+        const img = document.createElement('img');
+        img.src = f['Foto Drive'];
+        img.className = 'modal-photo';
+        img.alt = f.SKU || 'foto';
+        body.appendChild(img);
+      } else {
+        const link = document.createElement('a');
+        link.href = f['Foto Drive'];
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.className = 'modal-photo-link';
+        link.textContent = '📷 Apri foto Drive';
+        body.appendChild(link);
+      }
+    }
+
+    // Fields grid
+    const grid = document.createElement('div');
+    grid.className = 'modal-fields';
+
+    const simpleFields = [
+      ['SKU', f.SKU],
+      ['Genere', f.Genere],
+      ['Sottocategoria', f.Sottocategoria],
+      ['Brand', f.Brand],
+      ['Colore', f.Colore],
+      ['Taglia', f.Taglia],
+      ['Prezzo Target', f.Prezzo_Target != null ? `€${f.Prezzo_Target}` : null],
+      ['Stato', f.Stato],
+    ];
+
+    simpleFields.forEach(([label, val]) => {
+      if (!val && val !== 0) return;
+      const div = document.createElement('div');
+      div.className = 'modal-field';
+      div.innerHTML = `<label>${label}</label><div class="value">${escapeHtml(String(val))}</div>`;
+      grid.appendChild(div);
+    });
+
+    // Long text fields with copy
+    const longFields = [
+      ['Titolo Auto', f.Titolo_Auto],
+      ['Descrizione Auto', f.Descrizione_Auto],
+      ['Dettagli', f.Dettagli],
+    ];
+    longFields.forEach(([label, val]) => {
+      if (!val) return;
+      const div = document.createElement('div');
+      div.className = 'modal-field full';
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      div.appendChild(lbl);
+
+      const row = document.createElement('div');
+      row.className = 'copy-row';
+
+      const valDiv = document.createElement('div');
+      valDiv.className = 'value long';
+      valDiv.textContent = val;
+      row.appendChild(valDiv);
+
+      const btnCopy = document.createElement('button');
+      btnCopy.className = 'btn-copy';
+      btnCopy.textContent = 'Copia';
+      btnCopy.addEventListener('click', () => {
+        navigator.clipboard.writeText(val).then(() => {
+          btnCopy.textContent = 'Copiato!';
+          btnCopy.classList.add('copied');
+          setTimeout(() => { btnCopy.textContent = 'Copia'; btnCopy.classList.remove('copied'); }, 2000);
+        });
+      });
+      row.appendChild(btnCopy);
+      div.appendChild(row);
+      grid.appendChild(div);
+    });
+
+    body.appendChild(grid);
+
+    // Platform pills
+    const pillsRow = document.createElement('div');
+    pillsRow.className = 'modal-platforms';
+    ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
+      const pill = document.createElement('div');
+      pill.className = `platform-pill ${p.toLowerCase()}${!f[p] ? ' inactive' : ''}`;
+      pill.innerHTML = `${f[p] ? '✓' : '○'} ${p}`;
+      pillsRow.appendChild(pill);
+    });
+    body.appendChild(pillsRow);
+
+    document.getElementById('modal-backdrop').classList.add('visible');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-backdrop').classList.remove('visible');
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     SETUP SCREEN
+  ═══════════════════════════════════════════════════════════════════ */
+  function showSetup(prefill = null) {
+    const screen = document.getElementById('setup-screen');
+    screen.classList.add('visible');
+    if (prefill) {
+      document.getElementById('input-token').value   = prefill.token  || '';
+      document.getElementById('input-base-id').value = prefill.baseId || '';
+      document.getElementById('input-table').value   = prefill.table  || '';
+    } else {
+      // prefill from CONFIG defaults
+      document.getElementById('input-token').value   = CONFIG.token;
+      document.getElementById('input-base-id').value = CONFIG.baseId;
+      document.getElementById('input-table').value   = CONFIG.table;
+    }
+    document.getElementById('setup-error').style.display = 'none';
+  }
+
+  function hideSetup() {
+    document.getElementById('setup-screen').classList.remove('visible');
+  }
+
+  function saveSetup() {
+    const token  = document.getElementById('input-token').value.trim();
+    const baseId = document.getElementById('input-base-id').value.trim();
+    const table  = document.getElementById('input-table').value.trim();
+    const errEl  = document.getElementById('setup-error');
+
+    if (!token || !baseId || !table) {
+      errEl.textContent = 'Compila tutti i campi.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const creds = { token, baseId, table };
+    Storage.saveCredentials(creds);
+    State.credentials = creds;
+    errEl.style.display = 'none';
+    hideSetup();
+    loadRecords();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LOAD RECORDS
+  ═══════════════════════════════════════════════════════════════════ */
+  async function loadRecords() {
+    setLoading(true);
+    setStatus('Caricamento…', 'loading');
+    try {
+      const records = await API.fetchAllRecords();
+      State.records = records;
+      updateStats(records);
+      applyFilters();
+      setStatus(`${records.length} record`, 'success');
+      showToast(`${records.length} record caricati`, 'success');
+    } catch (err) {
+      setStatus('Errore', 'error');
+      showToast(`Errore: ${err.message}`, 'error', 5000);
+      Debug.log('LOAD', '/records', err.status || 'ERROR', err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     UTILITY
+  ═══════════════════════════════════════════════════════════════════ */
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function debounce(fn, delay) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     EVENT LISTENERS
+  ═══════════════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // Init credentials
+    const saved = Storage.loadCredentials();
+    State.credentials = saved || { token: CONFIG.token, baseId: CONFIG.baseId, table: CONFIG.table };
+
+    if (!saved) {
+      // First visit: show setup with CONFIG defaults
+      showSetup();
+    } else {
+      loadRecords();
+    }
+
+    // Refresh
+    document.getElementById('btn-refresh').addEventListener('click', loadRecords);
+
+    // Settings
+    document.getElementById('btn-settings').addEventListener('click', () => {
+      showSetup(State.credentials);
+    });
+
+    // Save setup
+    document.getElementById('btn-save-setup').addEventListener('click', saveSetup);
+    document.getElementById('input-table').addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveSetup();
+    });
+
+    // Search
+    document.getElementById('search-input').addEventListener('input',
+      debounce(e => {
+        State.searchQuery = e.target.value;
+        applyFilters();
+      }, 300)
+    );
+
+    // Status filter
+    document.getElementById('status-filter').addEventListener('change', e => {
+      State.statusFilter = e.target.value;
+      applyFilters();
+    });
+
+    // Platform filter buttons
+    document.querySelectorAll('.btn-platform').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.platform;
+        btn.classList.toggle('active');
+        if (btn.classList.contains('active')) {
+          if (!State.platformFilters.includes(p)) State.platformFilters.push(p);
+        } else {
+          State.platformFilters = State.platformFilters.filter(x => x !== p);
         }
+        applyFilters();
+      });
+    });
 
-        // ─── Setup Screen ────────────────────────────────────────
-        function SetupScreen({ onConnect }) {
-            const [token, setToken] = useState(() => localStorage.getItem('dt_token') || '');
-            const [baseId, setBaseId] = useState(() => localStorage.getItem('dt_baseId') || '');
-            const [tableName, setTableName] = useState(() => localStorage.getItem('dt_tableName') || 'inventario');
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
+    // Modal close
+    document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+    document.getElementById('modal-backdrop').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-backdrop')) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
 
-            const handleConnect = async () => {
-                setLoading(true);
-                setError('');
-                try {
-                    const client = new AirtableClient(token.trim(), baseId.trim(), tableName.trim());
-                    const records = await client.fetchAll();
-                    localStorage.setItem('dt_token', token.trim());
-                    localStorage.setItem('dt_baseId', baseId.trim());
-                    localStorage.setItem('dt_tableName', tableName.trim());
-                    onConnect(client, records);
-                } catch (err) {
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
+    // Debug panel
+    document.getElementById('debug-toggle').addEventListener('click', () => Debug.toggle());
+    document.getElementById('btn-clear-debug').addEventListener('click', () => Debug.clear());
 
-            return (
-                <div className="setup-overlay">
-                    <div className="setup-card">
-                        <h1>Revibe</h1>
-                        <p className="subtitle">Upload Dashboard — Connetti Airtable</p>
+    // Global errors
+    window.onerror = (msg) => Debug.log('ERROR', 'window', 500, msg);
+    window.onunhandledrejection = (e) => Debug.log('REJECT', 'promise', 500, e.reason?.message || String(e.reason));
 
-                        {error && <div className="setup-error">⚠ {error}</div>}
-
-                        <label>Personal Access Token</label>
-                        <input
-                            type="password"
-                            placeholder="pat_xxxxxxxxxxxx..."
-                            value={token}
-                            onChange={e => setToken(e.target.value)}
-                        />
-
-                        <label>Base ID</label>
-                        <input
-                            placeholder="appXXXXXXXXXXXXXX"
-                            value={baseId}
-                            onChange={e => setBaseId(e.target.value)}
-                        />
-
-                        <label>Nome Tabella</label>
-                        <input
-                            placeholder="inventario"
-                            value={tableName}
-                            onChange={e => setTableName(e.target.value)}
-                        />
-
-                        <button
-                            className="btn-primary"
-                            onClick={handleConnect}
-                            disabled={loading || !token || !baseId || !tableName}
-                        >
-                            {loading ? 'Connessione...' : 'Connetti'}
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // ─── Detail Modal ────────────────────────────────────────
-        function DetailModal({ record, onClose }) {
-            const f = record.fields;
-
-            useEffect(() => {
-                const handleEsc = e => e.key === 'Escape' && onClose();
-                window.addEventListener('keydown', handleEsc);
-                return () => window.removeEventListener('keydown', handleEsc);
-            }, []);
-
-            return (
-                <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-                    <div className="modal-card">
-                        <div className="modal-header">
-                            <div>
-                                <h2>{f['Brand']} — {f['Categoria']}</h2>
-                                <div className="sku-tag">{f['SKU']}</div>
-                            </div>
-                            <button className="modal-close" onClick={onClose}>✕</button>
-                        </div>
-
-                        <div className="modal-grid">
-                            <div className="modal-field">
-                                <label>Genere</label>
-                                <div className="value">{f['Genere'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Taglia</label>
-                                <div className="value">{f['Taglia'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Colore</label>
-                                <div className="value">{f['Colore'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Condizione</label>
-                                <div className="value">{f['Condizione'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Prezzo Target</label>
-                                <div className="value">{f['Prezzo_Target'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Status</label>
-                                <div className="value">{f['Status'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Piattaforma</label>
-                                <div className="value">{f['Piattaforma'] || '—'}</div>
-                            </div>
-                            <div className="modal-field">
-                                <label>Foto Drive</label>
-                                <div className="value">
-                                    {f['Foto Drive'] || f['Drive_Folder_URL'] ? (
-                                        <a className="cell-link" href={f['Foto Drive'] || f['Drive_Folder_URL']} target="_blank" rel="noopener">Apri cartella ↗</a>
-                                    ) : '—'}
-                                </div>
-                            </div>
-                        </div>
-
-                        {f['Dettagli'] && (
-                            <div style={{ marginBottom: 20 }}>
-                                <div className="modal-section-title">Dettagli</div>
-                                <div className="modal-desc">{f['Dettagli']}</div>
-                            </div>
-                        )}
-
-                        {f['Titolo_Auto'] && (
-                            <div style={{ marginBottom: 20 }}>
-                                <div className="modal-section-title">Titolo Auto</div>
-                                <div className="modal-desc">{f['Titolo_Auto']}</div>
-                            </div>
-                        )}
-
-                        {f['Descrizione_Auto'] && (
-                            <div>
-                                <div className="modal-section-title">Descrizione Auto</div>
-                                <div className="modal-desc">{f['Descrizione_Auto']}</div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        // ─── Main Dashboard ─────────────────────────────────────
-        function Dashboard({ client, initialRecords }) {
-            const [records, setRecords] = useState(initialRecords);
-            const [search, setSearch] = useState('');
-            const [platformFilter, setPlatformFilter] = useState(null); // null | 'Vinted' | 'Vestiaire' | 'Shopify'
-            const [statusFilter, setStatusFilter] = useState(null);
-            const [selectedRecord, setSelectedRecord] = useState(null);
-            const [savingCells, setSavingCells] = useState(new Set());
-            const [toast, setToast] = useState(null);
-            const [refreshing, setRefreshing] = useState(false);
-
-            const showToast = (message, type = 'success') => {
-                setToast({ message, type, key: Date.now() });
-            };
-
-            const refresh = async () => {
-                setRefreshing(true);
-                try {
-                    const fresh = await client.fetchAll();
-                    setRecords(fresh);
-                } catch (err) {
-                    showToast(`Errore refresh: ${err.message}`, 'error');
-                } finally {
-                    setRefreshing(false);
-                }
-            };
-
-            const handleCheckChange = async (recordId, field, value) => {
-                const cellKey = `${recordId}-${field}`;
-                setSavingCells(prev => new Set(prev).add(cellKey));
-
-                // Optimistic update
-                setRecords(prev => prev.map(r =>
-                    r.id === recordId
-                        ? { ...r, fields: { ...r.fields, [field]: value } }
-                        : r
-                ));
-
-                try {
-                    await client.updateRecord(recordId, { [field]: value });
-                    showToast(`${field} aggiornato`);
-                } catch (err) {
-                    // Rollback
-                    setRecords(prev => prev.map(r =>
-                        r.id === recordId
-                            ? { ...r, fields: { ...r.fields, [field]: !value } }
-                            : r
-                    ));
-                    showToast(`Errore: ${err.message}`, 'error');
-                } finally {
-                    setSavingCells(prev => {
-                        const next = new Set(prev);
-                        next.delete(cellKey);
-                        return next;
-                    });
-                }
-            };
-
-            const disconnect = () => {
-                localStorage.removeItem('dt_token');
-                localStorage.removeItem('dt_baseId');
-                localStorage.removeItem('dt_tableName');
-                window.location.reload();
-            };
-
-            // ─── Filtering Logic ────
-            const filtered = useMemo(() => {
-                return records.filter(r => {
-                    const f = r.fields;
-
-                    // Search filter
-                    if (search) {
-                        const q = search.toLowerCase();
-                        const haystack = [f['SKU'], f['Brand'], f['Categoria'], f['Sottocategoria'], f['Titolo_Auto']]
-                            .filter(Boolean)
-                            .join(' ')
-                            .toLowerCase();
-                        if (!haystack.includes(q)) return false;
-                    }
-
-                    // Platform filter (on Piattaforma multi-select field)
-                    if (platformFilter) {
-                        const piattaforma = f['Piattaforma'] || '';
-                        // Piattaforma can be comma-separated or an array
-                        const platforms = Array.isArray(piattaforma) ? piattaforma : piattaforma.split(',').map(s => s.trim());
-                        if (!platforms.some(p => p.toLowerCase().includes(platformFilter.toLowerCase()))) return false;
-                    }
-
-                    // Status filter
-                    if (statusFilter) {
-                        if ((f['Status'] || '').toLowerCase() !== statusFilter.toLowerCase()) return false;
-                    }
-
-                    return true;
-                });
-            }, [records, search, platformFilter, statusFilter]);
-
-            // ─── Stats ────
-            const stats = useMemo(() => {
-                const total = records.length;
-                const countPlatform = (name) => records.filter(r => {
-                    const p = r.fields['Piattaforma'] || '';
-                    const arr = Array.isArray(p) ? p : p.split(',').map(s => s.trim());
-                    return arr.some(x => x.toLowerCase().includes(name.toLowerCase()));
-                }).length;
-
-                const uploaded = (name) => records.filter(r => r.fields[name] === true).length;
-
-                return {
-                    total,
-                    vinted: countPlatform('Vinted'),
-                    vestiaire: countPlatform('Vestiaire'),
-                    shopify: countPlatform('Shopify'),
-                    uploadedVinted: uploaded('Vinted'),
-                    uploadedVestiaire: uploaded('Vestiaire'),
-                    uploadedShopify: uploaded('Shopify'),
-                };
-            }, [records]);
-
-            const togglePlatformFilter = (name) => {
-                setPlatformFilter(prev => prev === name ? null : name);
-            };
-
-            return (
-                <div>
-                    {/* Header */}
-                    <div className="header">
-                        <div className="header-left">
-                            <div className="logo">Revibe <span>/ upload</span></div>
-                            <div className="header-stats">
-                                <div><span className="stat-val">{stats.total}</span> prodotti</div>
-                                <div>
-                                    <span className="stat-val" style={{color: 'var(--accent-vinted)'}}>{stats.uploadedVinted}</span>
-                                    <span>/</span>
-                                    <span className="stat-val">{stats.vinted}</span> V
-                                </div>
-                                <div>
-                                    <span className="stat-val" style={{color: 'var(--accent-vestiaire)'}}>{stats.uploadedVestiaire}</span>
-                                    <span>/</span>
-                                    <span className="stat-val">{stats.vestiaire}</span> Ve
-                                </div>
-                                <div>
-                                    <span className="stat-val" style={{color: 'var(--accent-shopify)'}}>{stats.uploadedShopify}</span>
-                                    <span>/</span>
-                                    <span className="stat-val">{stats.shopify}</span> Sh
-                                </div>
-                            </div>
-                        </div>
-                        <div className="header-right">
-                            <button className="btn-icon" onClick={refresh} title="Ricarica dati">
-                                {refreshing ? '⟳' : '↻'}
-                            </button>
-                            <button className="btn-icon" onClick={disconnect} title="Disconnetti">⏻</button>
-                        </div>
-                    </div>
-
-                    {/* Toolbar */}
-                    <div className="toolbar">
-                        <div className="search-box">
-                            <span className="search-icon">⌕</span>
-                            <input
-                                placeholder="Cerca SKU, brand, categoria..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="divider-v" />
-
-                        <div className="filter-group">
-                            <span className="filter-label">Da caricare su</span>
-                            <button
-                                className={`filter-btn ${platformFilter === 'Vinted' ? 'active-vinted' : ''}`}
-                                onClick={() => togglePlatformFilter('Vinted')}
-                            >
-                                Vinted <span className="count">{stats.vinted}</span>
-                            </button>
-                            <button
-                                className={`filter-btn ${platformFilter === 'Vestiaire' ? 'active-vestiaire' : ''}`}
-                                onClick={() => togglePlatformFilter('Vestiaire')}
-                            >
-                                Vestiaire <span className="count">{stats.vestiaire}</span>
-                            </button>
-                            <button
-                                className={`filter-btn ${platformFilter === 'Shopify' ? 'active-shopify' : ''}`}
-                                onClick={() => togglePlatformFilter('Shopify')}
-                            >
-                                Shopify <span className="count">{stats.shopify}</span>
-                            </button>
-                        </div>
-
-                        <div className="status-filters">
-                            {['Disponibile', 'Venduto'].map(s => (
-                                <button
-                                    key={s}
-                                    className={`status-chip ${statusFilter === s ? 'active' : ''}`}
-                                    onClick={() => setStatusFilter(prev => prev === s ? null : s)}
-                                >
-                                    {s}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Table */}
-                    <div className="table-container">
-                        {filtered.length === 0 ? (
-                            <div className="empty-state">
-                                <div className="icon">📦</div>
-                                <p>Nessun prodotto trovato con i filtri attuali</p>
-                            </div>
-                        ) : (
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>SKU</th>
-                                        <th>Foto</th>
-                                        <th>Genere</th>
-                                        <th>Categoria</th>
-                                        <th>Sottocategoria</th>
-                                        <th>Brand</th>
-                                        <th>Colore</th>
-                                        <th>Taglia</th>
-                                        <th>Dettagli</th>
-                                        <th>Condizione</th>
-                                        <th>Prezzo</th>
-                                        <th>Target</th>
-                                        <th>Status</th>
-                                        <th>Titolo Auto</th>
-                                        <th>Descrizione Auto</th>
-                                        <th style={{textAlign: 'center'}}>Caricato</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filtered.map(record => {
-                                        const f = record.fields;
-                                        const statusClass = (f['Status'] || '').toLowerCase() === 'disponibile'
-                                            ? 'badge-disponibile'
-                                            : (f['Status'] || '').toLowerCase() === 'venduto'
-                                                ? 'badge-venduto'
-                                                : 'badge-default';
-
-                                        const genereClass = (f['Genere'] || '').toLowerCase() === 'uomo'
-                                            ? 'badge-uomo'
-                                            : (f['Genere'] || '').toLowerCase() === 'donna'
-                                                ? 'badge-donna'
-                                                : '';
-
-                                        return (
-                                            <tr key={record.id}>
-                                                <td>
-                                                    <span
-                                                        className="cell-sku"
-                                                        style={{ cursor: 'pointer' }}
-                                                        onClick={() => setSelectedRecord(record)}
-                                                    >
-                                                        {f['SKU'] || '—'}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    {(f['Foto Drive'] || f['Drive_Folder_URL']) ? (
-                                                        <a className="cell-link" href={f['Foto Drive'] || f['Drive_Folder_URL']} target="_blank" rel="noopener">
-                                                            📂
-                                                        </a>
-                                                    ) : '—'}
-                                                </td>
-                                                <td>
-                                                    {f['Genere'] ? (
-                                                        <span className={`badge badge-genere ${genereClass}`}>
-                                                            {f['Genere']}
-                                                        </span>
-                                                    ) : '—'}
-                                                </td>
-                                                <td>{f['Categoria'] || '—'}</td>
-                                                <td>{f['Sottocategoria'] || '—'}</td>
-                                                <td className="cell-brand">{f['Brand'] || '—'}</td>
-                                                <td>{f['Colore'] || '—'}</td>
-                                                <td>{f['Taglia'] || '—'}</td>
-                                                <td>
-                                                    <div
-                                                        className="cell-truncate"
-                                                        title={f['Dettagli'] || ''}
-                                                        onClick={() => setSelectedRecord(record)}
-                                                    >
-                                                        {f['Dettagli'] || '—'}
-                                                    </div>
-                                                </td>
-                                                <td>{f['Condizione'] || '—'}</td>
-                                                <td className="cell-price">{f['Prezzo_Target'] || '—'}</td>
-                                                <td>{f['Piattaforma'] || '—'}</td>
-                                                <td>
-                                                    <span className={`badge ${statusClass}`}>
-                                                        {f['Status'] || '—'}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div
-                                                        className="cell-truncate"
-                                                        title={f['Titolo_Auto'] || ''}
-                                                    >
-                                                        {f['Titolo_Auto'] || '—'}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div
-                                                        className="cell-truncate"
-                                                        title={f['Descrizione_Auto'] || ''}
-                                                        onClick={() => setSelectedRecord(record)}
-                                                    >
-                                                        {f['Descrizione_Auto'] ? '📝 Vedi' : '—'}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="check-group">
-                                                        {['Vinted', 'Vestiaire', 'Shopify'].map(platform => {
-                                                            const cellKey = `${record.id}-${platform}`;
-                                                            const isSaving = savingCells.has(cellKey);
-                                                            return (
-                                                                <div key={platform} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                                                                    <div className={`platform-check ${isSaving ? 'saving' : ''}`}>
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={!!f[platform]}
-                                                                            onChange={e => handleCheckChange(record.id, platform, e.target.checked)}
-                                                                            disabled={isSaving}
-                                                                        />
-                                                                        <div className={`checkmark check-${platform.toLowerCase()}`} />
-                                                                    </div>
-                                                                    <span className="check-label">{platform.substring(0, 2).toUpperCase()}</span>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
-
-                    {/* Detail Modal */}
-                    {selectedRecord && (
-                        <DetailModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />
-                    )}
-
-                    {/* Toast */}
-                    {toast && (
-                        <Toast
-                            key={toast.key}
-                            message={toast.message}
-                            type={toast.type}
-                            onDone={() => setToast(null)}
-                        />
-                    )}
-                </div>
-            );
-        }
-
-        // ─── App Root ────────────────────────────────────────────
-        function App() {
-            const [state, setState] = useState('setup'); // setup | loading | ready
-            const [client, setClient] = useState(null);
-            const [records, setRecords] = useState([]);
-
-            // Auto-connect if credentials saved
-            useEffect(() => {
-                const token = localStorage.getItem('dt_token');
-                const baseId = localStorage.getItem('dt_baseId');
-                const tableName = localStorage.getItem('dt_tableName');
-
-                if (token && baseId && tableName) {
-                    setState('loading');
-                    const c = new AirtableClient(token, baseId, tableName);
-                    setClient(c);
-                    c.fetchAll()
-                        .then(recs => { setRecords(recs); setState('ready'); })
-                        .catch(() => setState('setup'));
-                }
-            }, []);
-
-            const handleConnect = (newClient, newRecords) => {
-                setClient(newClient);
-                setRecords(newRecords);
-                setState('ready');
-            };
-
-            if (state === 'setup') {
-                return <SetupScreen onConnect={handleConnect} />;
-            }
-
-            if (state === 'loading') {
-                return (
-                    <div className="loading-screen">
-                        <div className="spinner" />
-                        <div className="loading-text">Caricamento inventario...</div>
-                    </div>
-                );
-            }
-
-            return <Dashboard client={client} initialRecords={records} />;
-        }
-
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-    </script>
+    Debug.log('INIT', 'app', 200, 'Airtable Publisher ready');
+  });
+  </script>
 </body>
 </html>
