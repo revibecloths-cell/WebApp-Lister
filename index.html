@@ -737,6 +737,9 @@
     async patchRecord(id, fields) {
       return this.request('PATCH', `/${id}`, { fields });
     },
+    async getRecord(id) {
+      return this.request('GET', `/${id}`);
+    },
   };
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1049,6 +1052,14 @@
 
     try {
       await API.patchRecord(recordId, { Piattaforma: newArr });
+
+      // VERIFY: fetch the record from Airtable to confirm the update persisted
+      const verified = await API.getRecord(recordId);
+      const savedArr = Array.isArray(verified.fields.Piattaforma) ? verified.fields.Piattaforma : [];
+
+      // Update local record with verified data from Airtable
+      record.fields.Piattaforma = savedArr;
+
       // Context-sensitive feedback for every case
       if (add) {
         showToast(`+ ${f_sku(record)} aggiunto a ${platform}`, 'success');
