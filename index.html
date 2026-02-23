@@ -1049,7 +1049,18 @@
 
     try {
       await API.patchRecord(recordId, { Piattaforma: newArr });
-      if (!add) showToast(`✓ ${f_sku(record)} caricato su ${platform}`, 'success');
+      // Context-sensitive feedback for every case
+      if (add) {
+        showToast(`+ ${f_sku(record)} aggiunto a ${platform}`, 'success');
+      } else if (State.activePlatform) {
+        // Platform tab: remove from queue = "published/done"
+        showToast(`✓ ${f_sku(record)} caricato su ${platform}`, 'success');
+        // Brief pause so user sees the checked state before the row disappears
+        await new Promise(r => setTimeout(r, 350));
+      } else {
+        // Tutti tab: uncheck = unassigning from destination
+        showToast(`− ${f_sku(record)} rimosso da ${platform}`, 'success');
+      }
       applyFilters();   // removes row from platform tab (or updates Tutti checkboxes)
     } catch (err) {
       // Rollback
