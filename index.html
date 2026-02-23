@@ -59,9 +59,9 @@
       background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
       transition: all .3s;
     }
-    #status-badge.success { background: rgba(34,197,94,.15); color: var(--success); border-color: rgba(34,197,94,.3); }
-    #status-badge.error   { background: rgba(239,68,68,.15);  color: var(--error);   border-color: rgba(239,68,68,.3); }
-    #status-badge.loading { background: rgba(99,102,241,.15); color: var(--accent);  border-color: rgba(99,102,241,.3); }
+    #status-badge.success { background: rgba(34,197,94,.15);  color: var(--success);  border-color: rgba(34,197,94,.3); }
+    #status-badge.error   { background: rgba(239,68,68,.15);  color: var(--error);    border-color: rgba(239,68,68,.3); }
+    #status-badge.loading { background: rgba(99,102,241,.15); color: var(--accent);   border-color: rgba(99,102,241,.3); }
     #header-right { margin-left: auto; display: flex; gap: 8px; }
     .btn-header {
       background: transparent; border: 1px solid var(--border);
@@ -72,8 +72,13 @@
 
     /* ─── Stats Bar ── */
     #stats-bar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 8px 20px; display: flex; gap: 24px; flex-wrap: wrap; flex-shrink: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 20px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
     }
     .stat-group { display: flex; align-items: center; gap: 10px; }
     .stat-label {
@@ -86,6 +91,55 @@
     .stat-item { font-size: .8rem; color: var(--text-muted); }
     .stat-item strong { color: var(--text); font-weight: 600; }
     .stat-sep { color: var(--border); }
+
+    /* ─── Platform Tabs ── */
+    #tab-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .btn-tab {
+      position: relative;
+      padding: 12px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-tab:hover { color: var(--text); }
+    .btn-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .btn-tab.active.all     { color: var(--text); border-bottom-color: var(--accent); }
+    .btn-tab.active.vinted    { color: var(--vinted);    border-bottom-color: var(--vinted); }
+    .btn-tab.active.vestiaire { color: var(--vestiaire); border-bottom-color: var(--vestiaire); }
+    .btn-tab.active.shopify   { color: var(--shopify);   border-bottom-color: var(--shopify); }
+    /* count badge on tab */
+    .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      min-width: 20px;
+    }
+    .btn-tab.active .tab-count { background: currentColor; }
+    .btn-tab.active.vinted    .tab-count { background: rgba(0,150,136,.2);   color: var(--vinted); }
+    .btn-tab.active.vestiaire .tab-count { background: rgba(201,169,110,.2); color: var(--vestiaire); }
+    .btn-tab.active.shopify   .tab-count { background: rgba(150,191,72,.2);  color: var(--shopify); }
+    .btn-tab.active.all       .tab-count { background: rgba(99,102,241,.15); color: var(--accent); }
 
     /* ─── Main ── */
     #main { flex: 1; display: flex; flex-direction: column; padding: 16px 20px 80px; gap: 12px; }
@@ -104,18 +158,6 @@
       color: var(--text); padding: 7px 12px; border-radius: 6px; outline: none; cursor: pointer;
     }
     #status-filter option { background: var(--surface); }
-    .platform-filters { display: flex; gap: 6px; }
-    .btn-platform {
-      padding: 6px 14px; border-radius: 6px; font-size: .8rem; font-weight: 600;
-      border: 1px solid transparent; transition: all .2s; opacity: .4;
-    }
-    .btn-platform.vinted    { border-color: var(--vinted);    color: var(--vinted);    background: rgba(0,150,136,.08); }
-    .btn-platform.vestiaire { border-color: var(--vestiaire); color: var(--vestiaire); background: rgba(201,169,110,.08); }
-    .btn-platform.shopify   { border-color: var(--shopify);   color: var(--shopify);   background: rgba(150,191,72,.08); }
-    .btn-platform.active { opacity: 1; }
-    .btn-platform.active.vinted    { background: rgba(0,150,136,.25); }
-    .btn-platform.active.vestiaire { background: rgba(201,169,110,.25); }
-    .btn-platform.active.shopify   { background: rgba(150,191,72,.25); }
     #record-count { margin-left: auto; font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
 
     /* ─── Table Card ── */
@@ -123,8 +165,8 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 8px; overflow: hidden; flex: 1;
     }
-    #table-wrapper { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 240px); }
-    table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+    #table-wrapper { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 260px); }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
 
     thead th {
       background: var(--surface2); padding: 10px 10px;
@@ -134,16 +176,16 @@
       position: sticky; top: 0; white-space: nowrap; z-index: 3;
     }
     thead th:first-child { position: sticky; left: 0; z-index: 4; background: var(--surface2); }
-    thead th.th-vinted    { color: var(--vinted); }
-    thead th.th-vestiaire { color: var(--vestiaire); }
-    thead th.th-shopify   { color: var(--shopify); }
+    .th-vinted    { color: var(--vinted) !important; }
+    .th-vestiaire { color: var(--vestiaire) !important; }
+    .th-shopify   { color: var(--shopify) !important; }
 
     tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
     tbody tr:hover { background: rgba(255,255,255,.03); }
     tbody tr:last-child { border-bottom: none; }
     tbody td { padding: 8px 10px; font-size: .82rem; vertical-align: middle; white-space: nowrap; }
 
-    /* Sticky first col */
+    /* Sticky SKU */
     tbody td:first-child { position: sticky; left: 0; background: var(--surface); z-index: 2; }
     tbody tr:hover td:first-child { background: #1f1f1f; }
 
@@ -153,6 +195,14 @@
     td.td-brand { color: var(--text); font-weight: 500; }
     td.td-price { color: var(--success); font-weight: 600; }
     td.td-trunc { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Drive button */
+    .btn-drive {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--accent); padding: 3px 8px; border-radius: 4px;
+      font-size: .75rem; transition: all .2s; white-space: nowrap;
+    }
+    .btn-drive:hover { border-color: var(--accent); background: rgba(99,102,241,.1); }
 
     /* Copy cell */
     .copy-cell { display: flex; align-items: center; gap: 5px; max-width: 200px; }
@@ -166,50 +216,34 @@
     .btn-copy-inline:hover { border-color: var(--accent); color: var(--accent); }
     .btn-copy-inline.copied { color: var(--success); border-color: var(--success); }
 
-    /* Drive button */
-    .btn-drive {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--accent); padding: 3px 8px; border-radius: 4px;
-      font-size: .75rem; transition: all .2s; white-space: nowrap;
-    }
-    .btn-drive:hover { border-color: var(--accent); background: rgba(99,102,241,.1); }
-
-    /* Dettagli preview */
-    .td-det-preview { max-width: 140px; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: .78rem; }
-
-    /* Platform checkboxes */
-    .platform-checkbox-cell { text-align: center; position: relative; min-width: 56px; }
+    /* Platform publish checkbox */
+    .platform-checkbox-cell { text-align: center; position: relative; min-width: 60px; }
     .platform-cb {
       appearance: none; -webkit-appearance: none;
-      width: 18px; height: 18px; border-radius: 4px;
+      width: 20px; height: 20px; border-radius: 5px;
       border: 2px solid var(--border); background: transparent;
       cursor: pointer; position: relative; transition: all .2s; vertical-align: middle;
     }
+    .platform-cb:hover { border-color: var(--text-muted); }
     .platform-cb:checked { border-color: transparent; }
     .platform-cb[data-platform="Vinted"]:checked    { background: var(--vinted);    border-color: var(--vinted); }
     .platform-cb[data-platform="Vestiaire"]:checked { background: var(--vestiaire); border-color: var(--vestiaire); }
     .platform-cb[data-platform="Shopify"]:checked   { background: var(--shopify);   border-color: var(--shopify); }
     .platform-cb:checked::after {
-      content: ''; position: absolute; left: 3px; top: 0px;
-      width: 8px; height: 13px;
+      content: ''; position: absolute; left: 4px; top: 1px;
+      width: 8px; height: 12px;
       border: 2px solid #fff; border-top: none; border-left: none;
       transform: rotate(45deg);
     }
     .platform-cb:disabled { opacity: .5; cursor: not-allowed; }
     .cb-spinner {
-      display: none; width: 14px; height: 14px;
+      display: none; width: 16px; height: 16px;
       border: 2px solid var(--border); border-top-color: var(--accent);
       border-radius: 50%; animation: spin-abs .6s linear infinite;
       position: absolute; top: 50%; left: 50%; pointer-events: none;
     }
     .platform-checkbox-cell.loading .platform-cb { opacity: 0; }
     .platform-checkbox-cell.loading .cb-spinner  { display: block; }
-
-    /* Status badge in table */
-    .status-badge {
-      display: inline-block; padding: 2px 7px; border-radius: 10px;
-      font-size: .7rem; font-weight: 600; white-space: nowrap;
-    }
 
     /* Detail button */
     .btn-detail {
@@ -284,11 +318,8 @@
     .modal-header-left { flex: 1; min-width: 0; }
     .modal-header h3 { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .modal-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
-    .meta-badge {
-      font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
-    }
+    .meta-badge { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
     .meta-badge.sku  { background: rgba(99,102,241,.12); color: var(--accent); }
-    .meta-badge.stat { background: rgba(136,136,136,.15); color: var(--text-muted); }
     .btn-close-modal { background: transparent; color: var(--text-muted); font-size: 1.4rem; line-height: 1; padding: 0 4px; transition: color .2s; flex-shrink: 0; }
     .btn-close-modal:hover { color: var(--text); }
     .modal-body { padding: 20px 24px; }
@@ -326,7 +357,7 @@
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; margin-top: 14px; padding: 10px;
       background: transparent; border: 1px solid var(--accent); color: var(--accent);
-      border-radius: 6px; font-weight: 600; font-size: .85rem; transition: all .2s; text-decoration: none;
+      border-radius: 6px; font-weight: 600; font-size: .85rem; transition: all .2s;
     }
     .modal-drive-btn:hover { background: rgba(99,102,241,.12); }
 
@@ -365,7 +396,7 @@
     #debug-panel-header span { font-size: .72rem; color: var(--text-muted); font-family: monospace; }
     #btn-clear-debug { background: transparent; color: var(--text-muted); font-size: .72rem; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
     #btn-clear-debug:hover { color: var(--error); border-color: var(--error); }
-    #debug-log { flex: 1; overflow-y: auto; padding: 8px 12px; font-family: "SF Mono", "Fira Code", monospace; font-size: .72rem; line-height: 1.6; }
+    #debug-log { flex: 1; overflow-y: auto; padding: 8px 12px; font-family: "SF Mono","Fira Code",monospace; font-size: .72rem; line-height: 1.6; }
     .log-success { color: var(--success); }
     .log-error   { color: var(--error); }
     .log-pending { color: var(--warning); }
@@ -378,13 +409,14 @@
       #toolbar { flex-direction: column; align-items: stretch; }
       #search-input { width: 100%; }
       #record-count { margin-left: 0; }
-      .platform-filters { justify-content: center; }
+      #tab-bar { overflow-x: auto; }
       .modal-fields { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header id="header">
     <h1>Airtable <span>Publisher</span></h1>
     <span id="status-badge">—</span>
@@ -394,38 +426,51 @@
     </div>
   </header>
 
+  <!-- Stats Bar -->
   <div id="stats-bar">
     <div class="stat-group">
       <span class="stat-label vinted">Vinted</span>
-      <span class="stat-item">Pub: <strong id="stat-vinted-pub">—</strong></span>
+      <span class="stat-item">Caricati: <strong id="stat-vinted-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-vinted-todo">—</strong></span>
     </div>
     <div class="stat-group">
       <span class="stat-label vestiaire">Vestiaire</span>
-      <span class="stat-item">Pub: <strong id="stat-vestiaire-pub">—</strong></span>
+      <span class="stat-item">Caricati: <strong id="stat-vestiaire-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-vestiaire-todo">—</strong></span>
     </div>
     <div class="stat-group">
       <span class="stat-label shopify">Shopify</span>
-      <span class="stat-item">Pub: <strong id="stat-shopify-pub">—</strong></span>
+      <span class="stat-item">Caricati: <strong id="stat-shopify-pub">—</strong></span>
       <span class="stat-sep">·</span>
       <span class="stat-item">Da caricare: <strong id="stat-shopify-todo">—</strong></span>
     </div>
   </div>
 
+  <!-- Platform Tabs -->
+  <div id="tab-bar">
+    <button class="btn-tab all active" data-platform="">
+      Tutti <span class="tab-count" id="tab-count-all">—</span>
+    </button>
+    <button class="btn-tab vinted" data-platform="Vinted">
+      Vinted <span class="tab-count" id="tab-count-vinted">—</span>
+    </button>
+    <button class="btn-tab vestiaire" data-platform="Vestiaire">
+      Vestiaire <span class="tab-count" id="tab-count-vestiaire">—</span>
+    </button>
+    <button class="btn-tab shopify" data-platform="Shopify">
+      Shopify <span class="tab-count" id="tab-count-shopify">—</span>
+    </button>
+  </div>
+
+  <!-- Main -->
   <main id="main">
     <div id="toolbar">
       <input id="search-input" type="search" placeholder="Cerca SKU, brand, colore, condizione…" autocomplete="off" />
       <select id="status-filter">
         <option value="">Tutti gli stati</option>
       </select>
-      <div class="platform-filters">
-        <button class="btn-platform vinted"    data-platform="Vinted">Vinted</button>
-        <button class="btn-platform vestiaire" data-platform="Vestiaire">Vestiaire</button>
-        <button class="btn-platform shopify"   data-platform="Shopify">Shopify</button>
-      </div>
       <span id="record-count"></span>
     </div>
 
@@ -433,9 +478,10 @@
       <div id="loading-overlay"><div class="spinner-large"></div></div>
       <div id="table-wrapper">
         <table id="records-table">
-          <thead>
+          <thead id="records-thead">
             <tr>
               <th>SKU</th>
+              <th>Drive</th>
               <th>Genere</th>
               <th>Sottocategoria</th>
               <th>Brand</th>
@@ -445,11 +491,7 @@
               <th>Prezzo</th>
               <th>Titolo</th>
               <th>Descrizione</th>
-              <th>Dettagli</th>
-              <th>Drive</th>
-              <th class="th-vinted">Vinted</th>
-              <th class="th-vestiaire">Vestiaire</th>
-              <th class="th-shopify">Shopify</th>
+              <th id="th-platform" style="display:none;"></th>
               <th></th>
             </tr>
           </thead>
@@ -528,21 +570,16 @@
      - AI fields (Titolo_Auto, Descrizione_Auto): { state, value, isStale }
      - Button/URL fields (Foto Drive): { label, url }
      - Multi-select (Piattaforma): string[]
-     - Plain text/number: string | number
   ═══════════════════════════════════════════════════════════════ */
   function fieldText(val) {
-    if (val == null) return '';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'number') return String(val);
-    // AI-generated field: { state, value }
-    if (val && typeof val === 'object' && 'value' in val) return val.value || '';
-    // URL/Button field: { label, url }
-    if (val && typeof val === 'object' && 'url' in val) return val.url || '';
-    // Array (multi-select or lookup)
-    if (Array.isArray(val)) return val.join(', ');
+    if (val == null)                                  return '';
+    if (typeof val === 'string')                      return val;
+    if (typeof val === 'number')                      return String(val);
+    if (val && typeof val === 'object' && 'value' in val) return val.value || '';  // AI field
+    if (val && typeof val === 'object' && 'url'   in val) return val.url   || '';  // URL/Button
+    if (Array.isArray(val))                           return val.join(', ');
     return String(val);
   }
-
   function fieldUrl(val) {
     if (!val) return '';
     if (typeof val === 'string') return val;
@@ -551,23 +588,11 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     PLATFORM HELPERS  — Piattaforma is a multi-select array
+     PLATFORM HELPERS — Piattaforma is a multi-select array
   ═══════════════════════════════════════════════════════════════ */
   function isOnPlatform(fields, platform) {
     const arr = fields.Piattaforma;
-    if (!Array.isArray(arr)) return false;
-    return arr.includes(platform);
-  }
-
-  function togglePlatform(currentArr, platform, add) {
-    const arr = Array.isArray(currentArr) ? [...currentArr] : [];
-    if (add) {
-      if (!arr.includes(platform)) arr.push(platform);
-    } else {
-      const idx = arr.indexOf(platform);
-      if (idx !== -1) arr.splice(idx, 1);
-    }
-    return arr;
+    return Array.isArray(arr) && arr.includes(platform);
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -578,9 +603,9 @@
     filtered:        [],
     searchQuery:     '',
     statusFilter:    '',
-    platformFilters: [],   // active → show items NOT on those platforms
+    activePlatform:  null,    // null = Tutti | 'Vinted' | 'Vestiaire' | 'Shopify'
     credentials:     null,
-    statusValues:    [],   // populated from loaded records
+    statusValues:    [],
   };
 
   /* ═══════════════════════════════════════════════════════════════
@@ -604,10 +629,10 @@
       const now = new Date();
       const ts  = [now.getHours(), now.getMinutes(), now.getSeconds()]
                     .map(n => String(n).padStart(2, '0')).join(':');
-      const cls = status === 'pending'                              ? 'log-pending'
+      const cls = status === 'pending'                                          ? 'log-pending'
                 : (typeof status === 'number' && status >= 200 && status < 300) ? 'log-success'
-                : (typeof status === 'number' && status >= 400)    ? 'log-error'
-                : status === 'ERROR'                               ? 'log-error'
+                : (typeof status === 'number' && status >= 400)                 ? 'log-error'
+                : status === 'ERROR'                                            ? 'log-error'
                 : 'log-info';
       const line = document.createElement('div');
       line.className   = cls;
@@ -654,14 +679,13 @@
   /* ═══════════════════════════════════════════════════════════════
      STATUS BADGE STYLE HELPER
   ═══════════════════════════════════════════════════════════════ */
-  const STATUS_COLORS = {
+  const STATUS_STYLES = {
     'Disponibile': 'background:rgba(34,197,94,.15);color:var(--success)',
     'Venduto':     'background:rgba(239,68,68,.15);color:var(--error)',
     'Fare Foto':   'background:rgba(245,158,11,.15);color:var(--warning)',
-    'In Attesa':   'background:rgba(99,102,241,.15);color:var(--accent)',
   };
-  function statusStyle(val) {
-    return STATUS_COLORS[val] || 'background:rgba(136,136,136,.15);color:var(--text-muted)';
+  function statusStyle(v) {
+    return STATUS_STYLES[v] || 'background:rgba(136,136,136,.15);color:var(--text-muted)';
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -700,8 +724,9 @@
     async fetchAllRecords() {
       let all = [], offset = null;
       do {
-        const data = await this.request('GET', `?pageSize=100${offset ? '&offset=' + encodeURIComponent(offset) : ''}`);
-        all = all.concat(data.records || []);
+        const data = await this.request('GET',
+          `?pageSize=100${offset ? '&offset=' + encodeURIComponent(offset) : ''}`);
+        all    = all.concat(data.records || []);
         offset = data.offset || null;
       } while (offset);
       return all;
@@ -716,10 +741,22 @@
   ═══════════════════════════════════════════════════════════════ */
   function updateStats(records) {
     [['Vinted','vinted'],['Vestiaire','vestiaire'],['Shopify','shopify']].forEach(([p, id]) => {
-      const pub  = records.filter(r =>  isOnPlatform(r.fields, p)).length;
-      const todo = records.filter(r => !isOnPlatform(r.fields, p)).length;
-      document.getElementById(`stat-${id}-pub`).textContent  = pub;
-      document.getElementById(`stat-${id}-todo`).textContent = todo;
+      const caricati   = records.filter(r =>  isOnPlatform(r.fields, p)).length;
+      const daCarica   = records.filter(r => !isOnPlatform(r.fields, p)).length;
+      document.getElementById(`stat-${id}-pub`).textContent  = caricati;
+      document.getElementById(`stat-${id}-todo`).textContent = daCarica;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     TAB COUNTS  — how many records are "da caricare" per platform
+  ═══════════════════════════════════════════════════════════════ */
+  function updateTabCounts(records) {
+    document.getElementById('tab-count-all').textContent       = records.length;
+    ['Vinted','Vestiaire','Shopify'].forEach(p => {
+      const id  = p.toLowerCase();
+      const cnt = records.filter(r => !isOnPlatform(r.fields, p)).length;
+      document.getElementById(`tab-count-${id}`).textContent = cnt;
     });
   }
 
@@ -730,13 +767,25 @@
     const vals = [...new Set(records.map(r => r.fields.Status).filter(Boolean))].sort();
     State.statusValues = vals;
     const sel = document.getElementById('status-filter');
-    // Keep first option (Tutti gli stati), rebuild the rest
     while (sel.options.length > 1) sel.remove(1);
     vals.forEach(v => {
       const o = document.createElement('option');
-      o.value = v; o.textContent = v;
-      sel.appendChild(o);
+      o.value = v; o.textContent = v; sel.appendChild(o);
     });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PLATFORM COLUMN HEADER — show/hide and style dynamically
+  ═══════════════════════════════════════════════════════════════ */
+  function updatePlatformHeader(platform) {
+    const th = document.getElementById('th-platform');
+    if (!platform) {
+      th.style.display = 'none';
+      return;
+    }
+    th.style.display = '';
+    th.textContent   = platform;
+    th.className     = `th-${platform.toLowerCase()}`;
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -745,7 +794,7 @@
   function applyFilters() {
     let recs = State.records.slice();
 
-    // Search across multiple fields
+    // Text search
     const q = State.searchQuery.toLowerCase().trim();
     if (q) {
       recs = recs.filter(r => {
@@ -756,16 +805,14 @@
       });
     }
 
-    // Status filter (uses f.Status)
+    // Status filter
     if (State.statusFilter) {
       recs = recs.filter(r => r.fields.Status === State.statusFilter);
     }
 
-    // Platform filter: show only records NOT on at least one active platform
-    if (State.platformFilters.length > 0) {
-      recs = recs.filter(r =>
-        State.platformFilters.some(p => !isOnPlatform(r.fields, p))
-      );
+    // Platform tab filter: show records NOT yet on the active platform
+    if (State.activePlatform) {
+      recs = recs.filter(r => !isOnPlatform(r.fields, State.activePlatform));
     }
 
     State.filtered = recs;
@@ -780,10 +827,8 @@
   function makeCopyCell(rawVal, truncLen) {
     const td   = document.createElement('td');
     const text = fieldText(rawVal);
-    if (!text) {
-      td.textContent = '—'; td.className = 'td-muted';
-      return td;
-    }
+    if (!text) { td.textContent = '—'; td.className = 'td-muted'; return td; }
+
     const wrap = document.createElement('div');
     wrap.className = 'copy-cell';
 
@@ -812,6 +857,11 @@
 
   /* ═══════════════════════════════════════════════════════════════
      TABLE RENDER
+     Column order:
+     1 SKU (sticky) | 2 Drive | 3 Genere | 4 Sottocategoria |
+     5 Brand | 6 Colore | 7 Taglia | 8 Condizione | 9 Prezzo |
+     10 Titolo (copy) | 11 Descrizione (copy) |
+     12 [Platform CB — only when activePlatform] | 13 ···
   ═══════════════════════════════════════════════════════════════ */
   function renderTable(records) {
     const tbody = document.getElementById('records-tbody');
@@ -826,6 +876,8 @@
     empty.style.display = 'none';
     document.getElementById('records-table').style.display = '';
 
+    const platform = State.activePlatform;
+
     records.forEach(record => {
       const f  = record.fields;
       const tr = document.createElement('tr');
@@ -839,56 +891,13 @@
       tdSku.addEventListener('click', () => openModal(record));
       tr.appendChild(tdSku);
 
-      /* 2 — Genere */
-      const tdG = document.createElement('td');
-      tdG.className = 'td-muted td-trunc'; tdG.textContent = f.Genere || '—'; tr.appendChild(tdG);
-
-      /* 3 — Sottocategoria */
-      const tdS = document.createElement('td');
-      tdS.className = 'td-muted td-trunc'; tdS.textContent = f.Sottocategoria || '—'; tr.appendChild(tdS);
-
-      /* 4 — Brand */
-      const tdB = document.createElement('td');
-      tdB.className = 'td-brand'; tdB.textContent = f.Brand || '—'; tr.appendChild(tdB);
-
-      /* 5 — Colore */
-      const tdC = document.createElement('td');
-      tdC.className = 'td-muted'; tdC.textContent = f.Colore || '—'; tr.appendChild(tdC);
-
-      /* 6 — Taglia */
-      const tdT = document.createElement('td');
-      tdT.className = 'td-muted'; tdT.textContent = f.Taglia || '—'; tr.appendChild(tdT);
-
-      /* 7 — Condizione */
-      const tdCond = document.createElement('td');
-      tdCond.className = 'td-muted'; tdCond.textContent = f.Condizione || '—'; tr.appendChild(tdCond);
-
-      /* 8 — Prezzo */
-      const tdP = document.createElement('td');
-      tdP.className   = 'td-price';
-      tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—';
-      tr.appendChild(tdP);
-
-      /* 9 — Titolo_Auto (AI field) */
-      tr.appendChild(makeCopyCell(f.Titolo_Auto, 45));
-
-      /* 10 — Descrizione_Auto (AI field) */
-      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 45));
-
-      /* 11 — Dettagli preview */
-      const tdDet = document.createElement('td');
-      tdDet.className   = 'td-det-preview';
-      tdDet.textContent = trunc(fieldText(f.Dettagli) || '', 55) || '—';
-      tdDet.title       = fieldText(f.Dettagli) || '';
-      tr.appendChild(tdDet);
-
-      /* 12 — Drive (Foto Drive field = Button type → {label, url}) */
-      const tdDrive = document.createElement('td');
+      /* 2 — Drive (Foto Drive Button field → {label, url}) */
+      const tdDrive  = document.createElement('td');
       const driveUrl = fieldUrl(f['Foto Drive']);
       if (driveUrl) {
         const btn = document.createElement('button');
         btn.className   = 'btn-drive';
-        btn.textContent = '📁 Apri';
+        btn.textContent = '📁';
         btn.title       = driveUrl;
         btn.addEventListener('click', e => { e.stopPropagation(); openDriveFolder(driveUrl); });
         tdDrive.appendChild(btn);
@@ -897,32 +906,69 @@
       }
       tr.appendChild(tdDrive);
 
-      /* 13-15 — Platform checkboxes (via Piattaforma multi-select) */
-      ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
-        const td  = document.createElement('td');
-        td.className        = 'platform-checkbox-cell';
-        td.dataset.platform = p;
-        td.dataset.recordId = record.id;
+      /* 3 — Genere */
+      const tdG = document.createElement('td');
+      tdG.className = 'td-muted td-trunc'; tdG.textContent = f.Genere || '—'; tr.appendChild(tdG);
+
+      /* 4 — Sottocategoria */
+      const tdSc = document.createElement('td');
+      tdSc.className = 'td-muted td-trunc'; tdSc.textContent = f.Sottocategoria || '—'; tr.appendChild(tdSc);
+
+      /* 5 — Brand */
+      const tdBr = document.createElement('td');
+      tdBr.className = 'td-brand'; tdBr.textContent = f.Brand || '—'; tr.appendChild(tdBr);
+
+      /* 6 — Colore */
+      const tdCo = document.createElement('td');
+      tdCo.className = 'td-muted'; tdCo.textContent = f.Colore || '—'; tr.appendChild(tdCo);
+
+      /* 7 — Taglia */
+      const tdTa = document.createElement('td');
+      tdTa.className = 'td-muted'; tdTa.textContent = f.Taglia || '—'; tr.appendChild(tdTa);
+
+      /* 8 — Condizione */
+      const tdCn = document.createElement('td');
+      tdCn.className = 'td-muted'; tdCn.textContent = f.Condizione || '—'; tr.appendChild(tdCn);
+
+      /* 9 — Prezzo */
+      const tdPr = document.createElement('td');
+      tdPr.className   = 'td-price';
+      tdPr.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—';
+      tr.appendChild(tdPr);
+
+      /* 10 — Titolo_Auto (AI field + copy) */
+      tr.appendChild(makeCopyCell(f.Titolo_Auto, 48));
+
+      /* 11 — Descrizione_Auto (AI field + copy) */
+      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 48));
+
+      /* 12 — Platform publish checkbox (only when on platform tab) */
+      if (platform) {
+        const tdCb = document.createElement('td');
+        tdCb.className        = 'platform-checkbox-cell';
+        tdCb.dataset.platform = platform;
+        tdCb.dataset.recordId = record.id;
 
         const cb = document.createElement('input');
         cb.type             = 'checkbox';
         cb.className        = 'platform-cb';
-        cb.dataset.platform = p;
-        cb.checked          = isOnPlatform(f, p);
-        cb.addEventListener('change', () =>
-          handlePlatformToggle(record.id, p, cb.checked, td, cb)
-        );
-        td.appendChild(cb);
+        cb.dataset.platform = platform;
+        cb.checked          = false;   // always unchecked — filter shows NOT on platform
+        cb.addEventListener('change', () => {
+          if (cb.checked) handlePublish(record.id, platform, tdCb, cb);
+          else            cb.checked = false;  // prevent unchecking (one-way action)
+        });
+        tdCb.appendChild(cb);
 
         const spin = document.createElement('div');
         spin.className = 'cb-spinner';
-        td.appendChild(spin);
+        tdCb.appendChild(spin);
 
-        tr.appendChild(td);
-      });
+        tr.appendChild(tdCb);
+      }
 
-      /* 16 — Modal button */
-      const tdAct = document.createElement('td');
+      /* 13 — Modal button */
+      const tdAct  = document.createElement('td');
       const btnDet = document.createElement('button');
       btnDet.className   = 'btn-detail';
       btnDet.textContent = '···';
@@ -940,7 +986,6 @@
   ═══════════════════════════════════════════════════════════════ */
   function openDriveFolder(url) {
     if (!url) return;
-    // Extract Google Drive folder ID and construct clean URL
     const m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
     const openUrl = m
       ? `https://drive.google.com/drive/folders/${m[1]}?usp=sharing`
@@ -950,34 +995,42 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     PLATFORM TOGGLE  — patches Piattaforma array on Airtable
+     HANDLE PUBLISH — adds platform to Piattaforma array
+     (one-way action: marks product as uploaded to this platform)
   ═══════════════════════════════════════════════════════════════ */
-  async function handlePlatformToggle(recordId, platform, add, cellEl, cbEl) {
+  async function handlePublish(recordId, platform, cellEl, cbEl) {
     const record = State.records.find(r => r.id === recordId);
     if (!record) return;
 
-    const prevArr  = Array.isArray(record.fields.Piattaforma) ? [...record.fields.Piattaforma] : [];
-    const newArr   = togglePlatform(prevArr, platform, add);
+    const prevArr = Array.isArray(record.fields.Piattaforma) ? [...record.fields.Piattaforma] : [];
+    const newArr  = [...new Set([...prevArr, platform])];
 
     // Optimistic update
     record.fields.Piattaforma = newArr;
     cellEl.classList.add('loading');
     cbEl.disabled = true;
     updateStats(State.records);
+    updateTabCounts(State.records);
 
     try {
       await API.patchRecord(recordId, { Piattaforma: newArr });
-      showToast(`${platform} ${add ? '✓ aggiunto' : '✗ rimosso'}`, 'success');
+      showToast(`✓ ${f_sku(record)} pubblicato su ${platform}`, 'success');
+      // Re-apply filter — record disappears (now it's in the platform)
+      applyFilters();
     } catch (err) {
       // Rollback
       record.fields.Piattaforma = prevArr;
-      cbEl.checked = !add;
+      cbEl.checked   = false;
       updateStats(State.records);
+      updateTabCounts(State.records);
       showToast(`Errore ${platform}: ${err.message}`, 'error');
-    } finally {
       cellEl.classList.remove('loading');
       cbEl.disabled = false;
     }
+  }
+
+  function f_sku(record) {
+    return (record && record.fields && record.fields.SKU) ? record.fields.SKU : 'record';
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -985,7 +1038,6 @@
   ═══════════════════════════════════════════════════════════════ */
   function openModal(record) {
     const f = record.fields;
-
     document.getElementById('modal-title').textContent = f.Brand || f.SKU || 'Record';
 
     const skuBadge = document.getElementById('modal-sku-badge');
@@ -993,14 +1045,18 @@
 
     const stBadge = document.getElementById('modal-status-badge');
     const status  = f.Status || '';
-    stBadge.textContent   = status;
-    stBadge.style.cssText = status ? `${statusStyle(status)}; padding: 2px 8px; border-radius: 10px; font-size: .72rem; font-weight: 600;` : 'display:none';
-    stBadge.style.display = status ? '' : 'none';
+    if (status) {
+      stBadge.textContent   = status;
+      stBadge.style.cssText = `${statusStyle(status)}; padding: 2px 8px; border-radius: 10px; font-size: .72rem; font-weight: 600;`;
+      stBadge.style.display = '';
+    } else {
+      stBadge.style.display = 'none';
+    }
 
     const body = document.getElementById('modal-body');
     body.innerHTML = '';
 
-    // Simple fields grid
+    // Simple grid
     const grid = document.createElement('div');
     grid.className = 'modal-fields';
     [
@@ -1020,7 +1076,7 @@
     });
     body.appendChild(grid);
 
-    // Long text fields with copy
+    // Long text fields
     [
       ['Titolo Auto',      f.Titolo_Auto],
       ['Descrizione Auto', f.Descrizione_Auto],
@@ -1032,14 +1088,11 @@
       d.className = 'modal-field full';
       const lbl = document.createElement('label');
       lbl.textContent = label; d.appendChild(lbl);
-
       const row = document.createElement('div');
       row.className = 'copy-row';
-
       const v = document.createElement('div');
       v.className = 'value long'; v.textContent = text;
       row.appendChild(v);
-
       const btn = document.createElement('button');
       btn.className = 'btn-copy'; btn.textContent = 'Copia';
       btn.addEventListener('click', () => {
@@ -1049,9 +1102,7 @@
           setTimeout(() => { btn.textContent = 'Copia'; btn.classList.remove('copied'); }, 2000);
         }).catch(() => showToast('Copia non riuscita', 'error'));
       });
-      row.appendChild(btn);
-      d.appendChild(row);
-      body.appendChild(d);
+      row.appendChild(btn); d.appendChild(row); body.appendChild(d);
     });
 
     // Platform pills
@@ -1066,12 +1117,12 @@
     });
     body.appendChild(pillsRow);
 
-    // Drive folder button
+    // Drive button
     const driveUrl = fieldUrl(f['Foto Drive']);
     if (driveUrl) {
       const btn = document.createElement('button');
       btn.className   = 'modal-drive-btn';
-      btn.innerHTML   = '📁 Apri cartella Drive';
+      btn.textContent = '📁 Apri cartella Drive';
       btn.addEventListener('click', () => openDriveFolder(driveUrl));
       body.appendChild(btn);
     }
@@ -1121,6 +1172,7 @@
       const records = await API.fetchAllRecords();
       State.records = records;
       updateStats(records);
+      updateTabCounts(records);
       populateStatusFilter(records);
       applyFilters();
       setStatus(`${records.length} record`, 'success');
@@ -1139,48 +1191,54 @@
   document.addEventListener('DOMContentLoaded', () => {
     const saved = Storage.load();
     State.credentials = saved || { token: CONFIG.token, baseId: CONFIG.baseId, table: CONFIG.table };
-
     if (!saved) { showSetup(); } else { loadRecords(); }
 
+    // Header
     document.getElementById('btn-refresh').addEventListener('click', loadRecords);
     document.getElementById('btn-settings').addEventListener('click', () => showSetup(State.credentials));
+
+    // Setup form
     document.getElementById('btn-save-setup').addEventListener('click', saveSetup);
     document.getElementById('input-table').addEventListener('keydown', e => { if (e.key === 'Enter') saveSetup(); });
 
+    // Search
     document.getElementById('search-input').addEventListener('input',
       debounce(e => { State.searchQuery = e.target.value; applyFilters(); }, 300)
     );
+
+    // Status filter
     document.getElementById('status-filter').addEventListener('change', e => {
       State.statusFilter = e.target.value; applyFilters();
     });
 
-    document.querySelectorAll('.btn-platform').forEach(btn => {
+    // Platform tabs — EXCLUSIVE selection
+    document.querySelectorAll('.btn-tab').forEach(btn => {
       btn.addEventListener('click', () => {
-        const p = btn.dataset.platform;
-        btn.classList.toggle('active');
-        if (btn.classList.contains('active')) {
-          if (!State.platformFilters.includes(p)) State.platformFilters.push(p);
-        } else {
-          State.platformFilters = State.platformFilters.filter(x => x !== p);
-        }
+        // Remove active from all
+        document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        State.activePlatform = btn.dataset.platform || null;
+        updatePlatformHeader(State.activePlatform);
         applyFilters();
       });
     });
 
+    // Modal close
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
     document.getElementById('modal-backdrop').addEventListener('click', e => {
       if (e.target === document.getElementById('modal-backdrop')) closeModal();
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+    // Debug
     document.getElementById('debug-toggle').addEventListener('click', () => Debug.toggle());
     document.getElementById('btn-clear-debug').addEventListener('click', () => Debug.clear());
 
-    window.onerror       = (msg, src, line) => Debug.log('ERROR',  `window:${line}`, 500, String(msg).slice(0, 100));
-    window.onunhandledrejection = e          => Debug.log('REJECT', 'promise',        500,
-        ((e.reason && e.reason.message) ? e.reason.message : String(e.reason)).slice(0, 100));
+    window.onerror             = (msg, s, line) => Debug.log('ERROR',  `window:${line}`, 500, String(msg).slice(0,100));
+    window.onunhandledrejection = e             => Debug.log('REJECT', 'promise',         500,
+        ((e.reason && e.reason.message) ? e.reason.message : String(e.reason)).slice(0,100));
 
-    Debug.log('INIT', 'app', 200, 'Airtable Publisher v3 — ready');
+    Debug.log('INIT', 'app', 200, 'Airtable Publisher v4 — ready');
   });
   </script>
 </body>
