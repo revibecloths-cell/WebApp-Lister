@@ -166,7 +166,7 @@
       border-radius: 8px; overflow: hidden; flex: 1;
     }
     #table-wrapper { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 260px); }
-    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1450px; }
 
     thead th {
       background: var(--surface2); padding: 10px 10px;
@@ -491,7 +491,10 @@
               <th>Prezzo</th>
               <th>Titolo</th>
               <th>Descrizione</th>
-              <th id="th-platform" style="display:none;"></th>
+              <th id="th-h-vinted"    class="th-vinted"    style="display:none;">Vinted</th>
+              <th id="th-h-vestiaire" class="th-vestiaire" style="display:none;">Vestiaire</th>
+              <th id="th-h-shopify"   class="th-shopify"   style="display:none;">Shopify</th>
+              <th id="th-platform"    style="display:none;"></th>
               <th></th>
             </tr>
           </thead>
@@ -741,8 +744,8 @@
   ═══════════════════════════════════════════════════════════════ */
   function updateStats(records) {
     [['Vinted','vinted'],['Vestiaire','vestiaire'],['Shopify','shopify']].forEach(([p, id]) => {
-      const caricati   = records.filter(r =>  isOnPlatform(r.fields, p)).length;
-      const daCarica   = records.filter(r => !isOnPlatform(r.fields, p)).length;
+      const daCarica   = records.filter(r =>  isOnPlatform(r.fields, p)).length;  // IN queue = da caricare
+      const caricati   = records.filter(r => !isOnPlatform(r.fields, p)).length;  // NOT in queue = caricati
       document.getElementById(`stat-${id}-pub`).textContent  = caricati;
       document.getElementById(`stat-${id}-todo`).textContent = daCarica;
     });
@@ -755,7 +758,7 @@
     document.getElementById('tab-count-all').textContent       = records.length;
     ['Vinted','Vestiaire','Shopify'].forEach(p => {
       const id  = p.toLowerCase();
-      const cnt = records.filter(r => !isOnPlatform(r.fields, p)).length;
+      const cnt = records.filter(r => isOnPlatform(r.fields, p)).length;
       document.getElementById(`tab-count-${id}`).textContent = cnt;
     });
   }
@@ -778,14 +781,19 @@
      PLATFORM COLUMN HEADER — show/hide and style dynamically
   ═══════════════════════════════════════════════════════════════ */
   function updatePlatformHeader(platform) {
-    const th = document.getElementById('th-platform');
+    const PLATS = ['vinted', 'vestiaire', 'shopify'];
     if (!platform) {
-      th.style.display = 'none';
-      return;
+      // Tutti: show 3 platform columns
+      PLATS.forEach(p => { document.getElementById(`th-h-${p}`).style.display = ''; });
+      document.getElementById('th-platform').style.display = 'none';
+    } else {
+      // Platform tab: hide 3 columns, show single
+      PLATS.forEach(p => { document.getElementById(`th-h-${p}`).style.display = 'none'; });
+      const th = document.getElementById('th-platform');
+      th.style.display = '';
+      th.textContent   = platform;
+      th.className     = `th-${platform.toLowerCase()}`;
     }
-    th.style.display = '';
-    th.textContent   = platform;
-    th.className     = `th-${platform.toLowerCase()}`;
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -810,10 +818,11 @@
       recs = recs.filter(r => r.fields.Status === State.statusFilter);
     }
 
-    // Platform tab filter: show records NOT yet on the active platform
+    // Platform tab filter: show records IN Piattaforma for that platform (upload queue)
     if (State.activePlatform) {
-      recs = recs.filter(r => !isOnPlatform(r.fields, State.activePlatform));
+      recs = recs.filter(r => isOnPlatform(r.fields, State.activePlatform));
     }
+    updatePlatformHeader(State.activePlatform);
 
     State.filtered = recs;
     renderTable(recs);
@@ -942,8 +951,31 @@
       /* 11 — Descrizione_Auto (AI field + copy) */
       tr.appendChild(makeCopyCell(f.Descrizione_Auto, 48));
 
-      /* 12 — Platform publish checkbox (only when on platform tab) */
-      if (platform) {
+      /* 12 — Platform checkboxes */
+      if (!platform) {
+        // Tutti tab: 3 checkboxes — checked = currently in Piattaforma; toggle assigns/unassigns
+        ['Vinted', 'Vestiaire', 'Shopify'].forEach(p => {
+          const tdCb = document.createElement('td');
+          tdCb.className = 'platform-checkbox-cell';
+
+          const cb = document.createElement('input');
+          cb.type             = 'checkbox';
+          cb.className        = 'platform-cb';
+          cb.dataset.platform = p;
+          cb.checked          = isOnPlatform(f, p);
+          cb.addEventListener('change', () => {
+            handlePlatformChange(record.id, p, cb.checked, tdCb, cb);
+          });
+          tdCb.appendChild(cb);
+
+          const spin = document.createElement('div');
+          spin.className = 'cb-spinner';
+          tdCb.appendChild(spin);
+
+          tr.appendChild(tdCb);
+        });
+      } else {
+        // Platform tab: 1 "caricato" checkbox — always unchecked; checking removes from Piattaforma
         const tdCb = document.createElement('td');
         tdCb.className        = 'platform-checkbox-cell';
         tdCb.dataset.platform = platform;
@@ -953,10 +985,10 @@
         cb.type             = 'checkbox';
         cb.className        = 'platform-cb';
         cb.dataset.platform = platform;
-        cb.checked          = false;   // always unchecked — filter shows NOT on platform
+        cb.checked          = false;
         cb.addEventListener('change', () => {
-          if (cb.checked) handlePublish(record.id, platform, tdCb, cb);
-          else            cb.checked = false;  // prevent unchecking (one-way action)
+          if (cb.checked) handlePlatformChange(record.id, platform, false, tdCb, cb);
+          else            cb.checked = false;
         });
         tdCb.appendChild(cb);
 
@@ -995,15 +1027,18 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     HANDLE PUBLISH — adds platform to Piattaforma array
-     (one-way action: marks product as uploaded to this platform)
+     HANDLE PLATFORM CHANGE
+     add=true  → adds platform to Piattaforma (assign to queue)
+     add=false → removes platform (mark as uploaded / unassign)
   ═══════════════════════════════════════════════════════════════ */
-  async function handlePublish(recordId, platform, cellEl, cbEl) {
+  async function handlePlatformChange(recordId, platform, add, cellEl, cbEl) {
     const record = State.records.find(r => r.id === recordId);
     if (!record) return;
 
     const prevArr = Array.isArray(record.fields.Piattaforma) ? [...record.fields.Piattaforma] : [];
-    const newArr  = [...new Set([...prevArr, platform])];
+    const newArr  = add
+      ? [...new Set([...prevArr, platform])]   // add
+      : prevArr.filter(p => p !== platform);   // remove
 
     // Optimistic update
     record.fields.Piattaforma = newArr;
@@ -1014,13 +1049,12 @@
 
     try {
       await API.patchRecord(recordId, { Piattaforma: newArr });
-      showToast(`✓ ${f_sku(record)} pubblicato su ${platform}`, 'success');
-      // Re-apply filter — record disappears (now it's in the platform)
-      applyFilters();
+      if (!add) showToast(`✓ ${f_sku(record)} caricato su ${platform}`, 'success');
+      applyFilters();   // removes row from platform tab (or updates Tutti checkboxes)
     } catch (err) {
       // Rollback
       record.fields.Piattaforma = prevArr;
-      cbEl.checked   = false;
+      cbEl.checked = add ? false : true;    // restore original state
       updateStats(State.records);
       updateTabCounts(State.records);
       showToast(`Errore ${platform}: ${err.message}`, 'error');
