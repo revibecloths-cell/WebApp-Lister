@@ -268,21 +268,13 @@
     .btn-copy-inline:hover { border-color: var(--accent); color: var(--accent); }
     .btn-copy-inline.copied { color: var(--success); border-color: var(--success); }
 
-    /* Drive buttons */
-    .drive-cell { display: flex; align-items: center; gap: 4px; }
+    /* Drive button */
     .btn-drive {
       background: transparent; border: 1px solid var(--border);
       color: var(--accent); padding: 3px 8px; border-radius: 4px;
       font-size: .75rem; transition: all .2s; white-space: nowrap;
     }
     .btn-drive:hover { border-color: var(--accent); background: rgba(99,102,241,.1); }
-    .btn-zip {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--success); padding: 3px 8px; border-radius: 4px;
-      font-size: .75rem; transition: all .2s; white-space: nowrap;
-    }
-    .btn-zip:hover { border-color: var(--success); background: rgba(34,197,94,.08); }
-    .btn-zip:active { transform: scale(.95); }
 
 
     /* ─── Upload checkbox cell ── */
@@ -1365,20 +1357,10 @@
       const tdDrive = document.createElement('td');
       const driveUrl = fieldUrl(f['Foto Drive']);
       if (driveUrl) {
-        const wrap = document.createElement('div');
-        wrap.className = 'drive-cell';
-
         const btnOpen = document.createElement('button');
         btnOpen.className = 'btn-drive'; btnOpen.textContent = '📁 Apri'; btnOpen.title = 'Apri cartella Drive';
         btnOpen.addEventListener('click', e => { e.stopPropagation(); openDriveFolder(driveUrl); });
-        wrap.appendChild(btnOpen);
-
-        const btnZip = document.createElement('button');
-        btnZip.className = 'btn-zip'; btnZip.textContent = '⬇ ZIP'; btnZip.title = 'Scarica cartella come ZIP';
-        btnZip.addEventListener('click', e => { e.stopPropagation(); downloadDriveZip(driveUrl); });
-        wrap.appendChild(btnZip);
-
-        tdDrive.appendChild(wrap);
+        tdDrive.appendChild(btnOpen);
       } else {
         tdDrive.textContent = '—'; tdDrive.className = 'td-muted';
       }
@@ -1452,18 +1434,6 @@
     const openUrl = m ? `https://drive.google.com/drive/folders/${m[1]}?usp=sharing` : url;
     window.open(openUrl, '_blank', 'noopener,noreferrer');
     Debug.log('DRIVE', '/open', 200, url.slice(0,60));
-  }
-
-  function downloadDriveZip(url) {
-    if (!url) return;
-    const m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-    if (!m) { showToast('ID cartella non trovato nell\'URL', 'error'); return; }
-    const folderId = m[1];
-    // Google Drive: apri la cartella con action=download che avvia il dialog ZIP nativo
-    const zipUrl = `https://drive.google.com/drive/folders/${folderId}?usp=drive_link&action=download`;
-    window.open(zipUrl, '_blank', 'noopener,noreferrer');
-    Debug.log('DRIVE', '/zip', 200, `folderId=${folderId}`);
-    showToast('Apertura cartella per download ZIP…', 'success', 2500);
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1642,30 +1612,13 @@
     section.appendChild(rowsWrap);
     body.appendChild(section);
 
-    // Drive folder buttons
+    // Drive folder button
     const driveUrl = fieldUrl(f['Foto Drive']);
     if (driveUrl) {
-      const driveRow = document.createElement('div');
-      driveRow.style.cssText = 'display:flex; gap:8px; margin-top:14px;';
-
-      const btnOpen = document.createElement('button');
-      btnOpen.className = 'modal-drive-btn';
-      btnOpen.style.flex = '1';
-      btnOpen.innerHTML = '📁 Apri cartella Drive';
-      btnOpen.addEventListener('click', () => openDriveFolder(driveUrl));
-      driveRow.appendChild(btnOpen);
-
-      const btnZip = document.createElement('button');
-      btnZip.className = 'modal-drive-btn';
-      btnZip.style.cssText = 'flex:0 0 auto; border-color:var(--success); color:var(--success);';
-      btnZip.innerHTML = '⬇ Scarica ZIP';
-      btnZip.title = 'Scarica l\'intera cartella come archivio ZIP';
-      btnZip.addEventListener('mouseover', () => btnZip.style.background = 'rgba(34,197,94,.08)');
-      btnZip.addEventListener('mouseout',  () => btnZip.style.background = 'transparent');
-      btnZip.addEventListener('click', () => downloadDriveZip(driveUrl));
-      driveRow.appendChild(btnZip);
-
-      body.appendChild(driveRow);
+      const btn = document.createElement('button');
+      btn.className = 'modal-drive-btn'; btn.innerHTML = '📁 Apri cartella Drive';
+      btn.addEventListener('click', () => openDriveFolder(driveUrl));
+      body.appendChild(btn);
     }
 
     document.getElementById('modal-backdrop').classList.add('visible');
