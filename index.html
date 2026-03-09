@@ -933,13 +933,13 @@
   /* ─── Platform config ─────────────────────────────────────
      targetField  : the Airtable field name inside Piattaforma multi-select
      uploadField  : the boolean checkbox field name in Airtable
-     removeField  : the boolean checkbox field for "annuncio eliminato"
+                    (source of truth for both publishing AND delisting)
      cssClass     : CSS variable key
   ───────────────────────────────────────────────────────────── */
   const PLATFORMS = [
-    { name: 'Vinted',    targetField: 'Vinted',    uploadField: 'Vinted',    removeField: 'Rimosso_Vinted',    cssClass: 'vinted'    },
-    { name: 'Vestiaire', targetField: 'Vestiaire', uploadField: 'Vestiaire', removeField: 'Rimosso_Vestiaire', cssClass: 'vestiaire' },
-    { name: 'Shopify',   targetField: 'Shopify',   uploadField: 'Shopify',   removeField: 'Rimosso_Shopify',   cssClass: 'shopify'   },
+    { name: 'Vinted',    targetField: 'Vinted',    uploadField: 'Vinted',    cssClass: 'vinted'    },
+    { name: 'Vestiaire', targetField: 'Vestiaire', uploadField: 'Vestiaire', cssClass: 'vestiaire' },
+    { name: 'Shopify',   targetField: 'Shopify',   uploadField: 'Shopify',   cssClass: 'shopify'   },
   ];
 
   /* ═══════════════════════════════════════════════════════════════
@@ -974,10 +974,6 @@
   }
   function isUploaded(fields, uploadFieldName) {
     const v = fields[uploadFieldName];
-    return v === true || v === 1;
-  }
-  function isRemoved(fields, removeFieldName) {
-    const v = fields[removeFieldName];
     return v === true || v === 1;
   }
 
@@ -1463,11 +1459,11 @@
     const m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
     if (!m) { showToast('ID cartella non trovato nell\'URL', 'error'); return; }
     const folderId = m[1];
-    // Google Drive native ZIP download endpoint — works for publicly shared folders
-    const zipUrl = `https://drive.google.com/drive/folders/${folderId}/download`;
+    // Google Drive: apri la cartella con action=download che avvia il dialog ZIP nativo
+    const zipUrl = `https://drive.google.com/drive/folders/${folderId}?usp=drive_link&action=download`;
     window.open(zipUrl, '_blank', 'noopener,noreferrer');
     Debug.log('DRIVE', '/zip', 200, `folderId=${folderId}`);
-    showToast('Download ZIP avviato…', 'success', 2000);
+    showToast('Apertura cartella per download ZIP…', 'success', 2500);
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1746,10 +1742,12 @@
 
   /* ═══════════════════════════════════════════════════════════════
      DELIST SCREEN
-     A record appears in column P if:
+     Source of truth: uploadField (e.g. "Vinted" checkbox)
+     A card appears in column P when:
        Status === 'Venduto'
-       AND isUploaded(fields, P.uploadField) === true
-       AND (showRemoved OR !isRemoved(fields, P.removeField))
+       AND uploadField === true  (was published → needs delisting)
+     Clicking "Eliminato" sets uploadField → false (annuncio rimosso)
+     showRemoved mode shows cards where uploadField === false too.
   ═══════════════════════════════════════════════════════════════ */
   function getDelistRecords() {
     return State.records.filter(r => r.fields.Status === 'Venduto');
@@ -1757,9 +1755,7 @@
 
   function updateDelistStats(soldRecords) {
     PLATFORMS.forEach(p => {
-      const todo = soldRecords.filter(r =>
-        isUploaded(r.fields, p.uploadField) && !isRemoved(r.fields, p.removeField)
-      ).length;
+      const todo = soldRecords.filter(r => isUploaded(r.fields, p.uploadField)).length;
       const el = document.getElementById(`ds-${p.cssClass}-todo`);
       if (el) el.textContent = todo;
     });
@@ -1770,7 +1766,6 @@
     updateDelistStats(soldAll);
 
     const q = State.delistSearch.toLowerCase().trim();
-
     let total = 0;
 
     PLATFORMS.forEach(p => {
@@ -1778,15 +1773,24 @@
       const badge = document.getElementById(`delist-badge-${p.name}`);
       if (!body || !badge) return;
 
-      // Filter: must have been published on this platform
-      let cards = soldAll.filter(r => isUploaded(r.fields, p.uploadField));
+      // Must have been published on this platform (uploadField = true)
+      // OR, if showRemoved, also include those already delisted (uploadField = false)
+      let cards = soldAll.filter(r =>
+        State.showRemoved
+          ? true                                    // any sold record that had any link to this platform via Piattaforma target
+          : isUploaded(r.fields, p.uploadField)     // only those still live
+      );
 
-      // Filter: unless showRemoved, hide already-removed
-      if (!State.showRemoved) {
-        cards = cards.filter(r => !isRemoved(r.fields, p.removeField));
+      // When showRemoved, we still only want records that WERE on this platform
+      // (either still uploaded, or were uploaded at some point — but we have no history,
+      //  so we show: currently uploaded OR currently in Piattaforma target for this platform)
+      if (State.showRemoved) {
+        cards = cards.filter(r =>
+          isUploaded(r.fields, p.uploadField) || isTarget(r.fields, p.name)
+        );
       }
 
-      // Search filter
+      // Search
       if (q) {
         cards = cards.filter(r => {
           const f = r.fields;
@@ -1795,8 +1799,9 @@
         });
       }
 
-      badge.textContent = cards.length;
-      total += cards.length;
+      const pendingCount = cards.filter(r => isUploaded(r.fields, p.uploadField)).length;
+      badge.textContent = pendingCount;
+      total += pendingCount;
       body.innerHTML = '';
 
       if (!cards.length) {
@@ -1811,27 +1816,24 @@
         empty.appendChild(icon); empty.appendChild(msg);
         body.appendChild(empty);
       } else {
-        cards.forEach(record => {
-          body.appendChild(makeDelistCard(record, p));
-        });
+        cards.forEach(record => body.appendChild(makeDelistCard(record, p)));
       }
     });
 
-    // Update total count
     const countEl = document.getElementById('delist-count');
     if (countEl) countEl.textContent = `${total} annunci da eliminare`;
   }
 
   function makeDelistCard(record, platform) {
-    const f       = record.fields;
-    const removed = isRemoved(f, platform.removeField);
+    const f        = record.fields;
+    const delisted = !isUploaded(f, platform.uploadField); // uploadField=false → already delisted
 
     const card = document.createElement('div');
-    card.className = `delist-card${removed ? ' removed' : ''}`;
+    card.className = `delist-card${delisted ? ' removed' : ''}`;
     card.dataset.recordId = record.id;
     card.dataset.platform = platform.name;
 
-    // Top row: info + price
+    // Top row
     const top = document.createElement('div');
     top.className = 'delist-card-top';
 
@@ -1857,7 +1859,6 @@
       desc.appendChild(s);
     });
     info.appendChild(desc);
-
     top.appendChild(info);
 
     if (f.Prezzo_Target != null) {
@@ -1866,96 +1867,110 @@
       price.textContent = `€${f.Prezzo_Target}`;
       top.appendChild(price);
     }
-
     card.appendChild(top);
 
-    // Other platforms status row
+    // Status row — which platforms still have an active listing
     const platformsRow = document.createElement('div');
     platformsRow.className = 'delist-card-platforms';
     PLATFORMS.forEach(op => {
-      if (!isUploaded(f, op.uploadField)) return; // was never published here
+      // Only show platforms where this item is/was a target
+      if (!isTarget(f, op.name)) return;
+      const stillLive = isUploaded(f, op.uploadField);
       const pill = document.createElement('span');
-      const isRm = isRemoved(f, op.removeField);
-      pill.className   = `delist-pstatus ${isRm ? 'removed' : 'pending'}`;
-      pill.textContent = `${isRm ? '✓' : '✗'} ${op.name}`;
+      pill.className   = `delist-pstatus ${stillLive ? 'pending' : 'removed'}`;
+      pill.textContent = `${stillLive ? '✗' : '✓'} ${op.name}`;
       platformsRow.appendChild(pill);
     });
     if (platformsRow.children.length) card.appendChild(platformsRow);
 
     // Delist button
     const btn = document.createElement('button');
-    btn.className  = `btn-delist${removed ? ' done' : ''}`;
-    btn.disabled   = removed;
-    btn.innerHTML  = `<div class="btn-delist-spinner"></div><span class="btn-delist-label">${removed ? '✓ Eliminato' : '✓ Segna come Eliminato'}</span>`;
-    btn.addEventListener('click', () => handleDelistToggle(record.id, platform, true, btn, card));
+    btn.className = `btn-delist${delisted ? ' done' : ''}`;
+    btn.disabled  = delisted;
+    btn.innerHTML = `<div class="btn-delist-spinner"></div><span class="btn-delist-label">${delisted ? '✓ Eliminato' : '✓ Segna come Eliminato'}</span>`;
+    btn.addEventListener('click', () => handleDelistToggle(record.id, platform, btn, card));
     card.appendChild(btn);
 
     return card;
   }
 
   /* ═══════════════════════════════════════════════════════════════
-     DELIST TOGGLE  — patches removeField to true on Airtable
+     DELIST TOGGLE
+     Sets uploadField → false (annuncio rimosso dalla piattaforma).
+     Uses the same uploadField checkbox already in Airtable — no new fields needed.
   ═══════════════════════════════════════════════════════════════ */
-  async function handleDelistToggle(recordId, platform, newValue, btnEl, cardEl) {
+  async function handleDelistToggle(recordId, platform, btnEl, cardEl) {
     const record = State.records.find(r => r.id === recordId);
     if (!record) return;
 
-    const prevValue = isRemoved(record.fields, platform.removeField);
+    // Optimistic update: set uploadField to false
+    const prevValue = record.fields[platform.uploadField];
+    record.fields[platform.uploadField] = false;
 
-    // Optimistic update
-    record.fields[platform.removeField] = newValue;
     btnEl.classList.add('loading');
     btnEl.disabled = true;
 
     try {
-      await API.patchRecord(recordId, { [platform.removeField]: newValue });
+      await API.patchRecord(recordId, { [platform.uploadField]: false });
 
-      // Animate card out
-      cardEl.classList.add('removing');
-      setTimeout(() => {
-        if (!State.showRemoved) {
+      // Also update stats bar (this item is no longer "published" on this platform)
+      updateStats(State.records);
+      updateTabCounts(State.records);
+
+      showToast(`✓ ${platform.name}: annuncio segnato come eliminato`, 'success');
+      Debug.log('DELIST', `/${recordId}`, 200, `${platform.uploadField}=false`);
+
+      // Animate card out if not in showRemoved mode
+      if (!State.showRemoved) {
+        cardEl.classList.add('removing');
+        setTimeout(() => {
           cardEl.remove();
-          // Check if column is now empty
           const body  = document.getElementById(`delist-body-${platform.name}`);
           const badge = document.getElementById(`delist-badge-${platform.name}`);
           if (body && !body.children.length) {
             const empty = document.createElement('div');
             empty.className = 'delist-col-empty';
-            const icon = document.createElement('div');
-            icon.className = 'col-empty-icon'; icon.textContent = '✓';
-            const msg = document.createElement('p');
-            msg.textContent = `Nessun annuncio da eliminare su ${platform.name}.`;
+            const icon = document.createElement('div'); icon.className = 'col-empty-icon'; icon.textContent = '✓';
+            const msg  = document.createElement('p');   msg.textContent = `Nessun annuncio da eliminare su ${platform.name}.`;
             empty.appendChild(icon); empty.appendChild(msg);
             body.appendChild(empty);
           }
           if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
-        } else {
-          // Stay visible but dimmed, update button
-          cardEl.classList.remove('removing');
-          cardEl.classList.add('removed');
-          btnEl.classList.remove('loading');
-          btnEl.classList.add('done');
-          btnEl.innerHTML = `<span class="btn-delist-label">✓ Eliminato</span>`;
-          btnEl.disabled = true;
+          updateDelistStats(getDelistRecords());
+          const countEl = document.getElementById('delist-count');
+          if (countEl) {
+            const remaining = PLATFORMS.reduce((acc, p) =>
+              acc + getDelistRecords().filter(r => isUploaded(r.fields, p.uploadField)).length, 0);
+            countEl.textContent = `${remaining} annunci da eliminare`;
+          }
+        }, 440);
+      } else {
+        // Stay visible, update button and pill to "done" state
+        cardEl.classList.remove('removing');
+        cardEl.classList.add('removed');
+        btnEl.classList.remove('loading');
+        btnEl.classList.add('done');
+        btnEl.innerHTML = `<span class="btn-delist-label">✓ Eliminato</span>`;
+        btnEl.disabled = true;
+        // Refresh platform pills on card
+        const pillsRow = cardEl.querySelector('.delist-card-platforms');
+        if (pillsRow) {
+          pillsRow.innerHTML = '';
+          PLATFORMS.forEach(op => {
+            if (!isTarget(record.fields, op.name)) return;
+            const stillLive = isUploaded(record.fields, op.uploadField);
+            const pill = document.createElement('span');
+            pill.className   = `delist-pstatus ${stillLive ? 'pending' : 'removed'}`;
+            pill.textContent = `${stillLive ? '✗' : '✓'} ${op.name}`;
+            pillsRow.appendChild(pill);
+          });
         }
         updateDelistStats(getDelistRecords());
-        const countEl = document.getElementById('delist-count');
-        if (countEl) {
-          const total = PLATFORMS.reduce((acc, p) => {
-            return acc + getDelistRecords().filter(r =>
-              isUploaded(r.fields, p.uploadField) && !isRemoved(r.fields, p.removeField)
-            ).length;
-          }, 0);
-          countEl.textContent = `${total} annunci da eliminare`;
-        }
-      }, 420);
-
-      showToast(`✓ ${platform.name}: annuncio segnato come eliminato`, 'success');
-      Debug.log('DELIST', `/${recordId}`, 200, `${platform.removeField}=true`);
+      }
 
     } catch (err) {
       // Rollback
-      record.fields[platform.removeField] = prevValue;
+      record.fields[platform.uploadField] = prevValue;
       cardEl.classList.remove('removing');
       btnEl.classList.remove('loading');
       btnEl.disabled = false;
