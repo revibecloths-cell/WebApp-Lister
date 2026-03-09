@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Airtable Publisher — INVENTARIO</title>
+  <title>Airtable Publisher — DIRTYARDO</title>
   <style>
     :root {
       --bg:            #0f0f0f;
@@ -69,6 +69,24 @@
       font-size: 0.8rem; transition: all .2s;
     }
     .btn-header:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ─── Screen Nav ── */
+    #screen-nav {
+      display: flex; gap: 2px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 3px;
+    }
+    .screen-btn {
+      background: transparent; border: none;
+      color: var(--text-muted); padding: 4px 14px; border-radius: 6px;
+      font-size: .8rem; font-weight: 600; transition: all .2s; white-space: nowrap;
+    }
+    .screen-btn:hover { color: var(--text); background: var(--surface2); }
+    .screen-btn.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ─── Screen visibility ── */
+    .screen { display: none; flex: 1; flex-direction: column; min-height: 0; }
+    .screen.active { display: flex; }
 
     /* ─── Platform Tabs ── */
     #platform-tabs {
@@ -488,11 +506,191 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ─── Delist screen ── */
+    #delist-screen {
+      flex: 1; display: none; flex-direction: column; min-height: 0;
+    }
+    #delist-screen.active { display: flex; }
+
+    #delist-header {
+      padding: 14px 20px 0; display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; flex-wrap: wrap; gap: 10px;
+    }
+    #delist-header h2 {
+      font-size: .95rem; font-weight: 700; color: var(--text);
+    }
+    #delist-header p { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+    #delist-summary {
+      display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+    }
+    .delist-stat {
+      font-size: .78rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .delist-stat strong { color: var(--text); font-weight: 700; }
+    .delist-stat .dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* Toggle show-removed */
+    #delist-toolbar {
+      padding: 10px 20px; display: flex; align-items: center; gap: 14px;
+      flex-shrink: 0; border-bottom: 1px solid var(--border);
+    }
+    #delist-search {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 6px 12px; border-radius: 6px;
+      width: 220px; outline: none; transition: border-color .2s; font-size: .82rem;
+    }
+    #delist-search:focus { border-color: var(--accent); }
+    #delist-search::placeholder { color: var(--text-muted); }
+    #delist-count { font-size: .78rem; color: var(--text-muted); margin-left: auto; }
+
+    /* Kanban columns */
+    #delist-board {
+      flex: 1; display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .delist-col {
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border);
+      min-height: 0;
+    }
+    .delist-col:last-child { border-right: none; }
+
+    .delist-col-header {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .delist-col-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .delist-col-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .delist-col.vinted    .delist-col-dot { background: var(--vinted); }
+    .delist-col.vestiaire .delist-col-dot { background: var(--vestiaire); }
+    .delist-col.shopify   .delist-col-dot { background: var(--shopify); }
+    .delist-col.vinted    .delist-col-title { color: var(--vinted); }
+    .delist-col.vestiaire .delist-col-title { color: var(--vestiaire); }
+    .delist-col.shopify   .delist-col-title { color: var(--shopify); }
+    .delist-col-badge {
+      font-size: .68rem; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    }
+    .delist-col.vinted    .delist-col-badge { background: rgba(0,150,136,.15);   color: var(--vinted); }
+    .delist-col.vestiaire .delist-col-badge { background: rgba(201,169,110,.15); color: var(--vestiaire); }
+    .delist-col.shopify   .delist-col-badge { background: rgba(150,191,72,.15);  color: var(--shopify); }
+
+    .delist-col-body {
+      flex: 1; overflow-y: auto; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .delist-col-empty {
+      text-align: center; padding: 40px 12px;
+      color: var(--text-muted); font-size: .8rem;
+    }
+    .delist-col-empty .col-empty-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .delist-col-empty p { margin-top: 4px; }
+
+    /* Delist cards */
+    .delist-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 12px;
+      transition: border-color .2s, opacity .3s;
+      position: relative; overflow: hidden;
+    }
+    .delist-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; border-radius: 8px 0 0 8px;
+    }
+    .delist-col.vinted    .delist-card::before { background: var(--vinted); }
+    .delist-col.vestiaire .delist-card::before { background: var(--vestiaire); }
+    .delist-col.shopify   .delist-card::before { background: var(--shopify); }
+
+    .delist-card:hover { border-color: rgba(255,255,255,.1); }
+    .delist-card.removed {
+      opacity: .38; background: var(--surface2);
+    }
+    .delist-card.removing {
+      opacity: 0; transform: translateX(8px) scale(.97);
+      transition: opacity .4s, transform .4s;
+    }
+
+    .delist-card-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    }
+    .delist-card-info { flex: 1; min-width: 0; }
+    .delist-card-sku {
+      font-size: .7rem; font-weight: 700; color: var(--accent);
+      letter-spacing: .04em; margin-bottom: 2px;
+    }
+    .delist-card-brand {
+      font-size: .85rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .delist-card-desc {
+      font-size: .75rem; color: var(--text-muted); margin-top: 4px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .delist-card-desc span { display: flex; align-items: center; gap: 3px; }
+    .delist-card-price {
+      font-size: .82rem; font-weight: 700; color: var(--success);
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* Delist check button */
+    .btn-delist {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 10px; width: 100%;
+      padding: 7px 10px; border-radius: 6px;
+      font-size: .78rem; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text-muted);
+      transition: all .2s; cursor: pointer; position: relative;
+    }
+    .btn-delist:hover:not(:disabled) {
+      background: rgba(34,197,94,.08);
+      border-color: var(--success); color: var(--success);
+    }
+    .btn-delist.done {
+      background: rgba(34,197,94,.1);
+      border-color: var(--success); color: var(--success);
+      cursor: default;
+    }
+    .btn-delist .btn-delist-spinner {
+      display: none; width: 11px; height: 11px;
+      border: 2px solid rgba(255,255,255,.2); border-top-color: var(--success);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    .btn-delist.loading .btn-delist-spinner { display: block; }
+    .btn-delist.loading .btn-delist-label   { opacity: .4; }
+    .btn-delist:disabled { pointer-events: none; }
+
+    /* Other-platforms status row */
+    .delist-card-platforms {
+      display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap;
+    }
+    .delist-pstatus {
+      font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .delist-pstatus.removed   { background: rgba(34,197,94,.1);  color: var(--success); }
+    .delist-pstatus.pending   { background: rgba(239,68,68,.1);  color: var(--error); }
+    .delist-pstatus.not-pub   { background: var(--surface2);     color: var(--text-muted); opacity: .5; }
+
     @media (max-width: 768px) {
       #toolbar { flex-direction: column; align-items: stretch; }
       #search-input { width: 100%; }
       #record-count { margin-left: 0; }
       .modal-fields { grid-template-columns: 1fr; }
+      #delist-board { grid-template-columns: 1fr; overflow-y: auto; }
+      .delist-col { border-right: none; border-bottom: 1px solid var(--border); max-height: 60vh; }
     }
   </style>
 </head>
@@ -501,11 +699,21 @@
   <header id="header">
     <h1>Airtable <span>Publisher</span></h1>
     <span id="status-badge">—</span>
+
+    <!-- Screen switcher -->
+    <nav id="screen-nav">
+      <button class="screen-btn active" data-screen="inventory">📦 Inventario</button>
+      <button class="screen-btn" data-screen="delist">🗑 Delist</button>
+    </nav>
+
     <div id="header-right">
       <button id="btn-refresh" class="btn-header">↻ Refresh</button>
       <button id="btn-settings" class="btn-header">⚙ Config</button>
     </div>
   </header>
+
+  <!-- ═══ SCREEN: INVENTORY ═══ -->
+  <div id="screen-inventory" class="screen active">
 
   <!-- Platform Tabs -->
   <nav id="platform-tabs">
@@ -592,7 +800,78 @@
     </div>
   </main>
 
-  <!-- Setup -->
+  </div><!-- /screen-inventory -->
+
+  <!-- ═══ SCREEN: DELIST ═══ -->
+  <div id="screen-delist" class="screen">
+
+    <div id="delist-header">
+      <div>
+        <h2>🗑 Gestione Delist — Articoli Venduti</h2>
+        <p>Annunci da eliminare dalle piattaforme. Spunta "Eliminato" per ogni piattaforma su cui l'annuncio è stato rimosso.</p>
+      </div>
+      <div id="delist-summary">
+        <div class="delist-stat">
+          <div class="dot" style="background:var(--vinted)"></div>
+          Vinted: <strong id="ds-vinted-todo">—</strong> da rimuovere
+        </div>
+        <div class="delist-stat">
+          <div class="dot" style="background:var(--vestiaire)"></div>
+          Vestiaire: <strong id="ds-vestiaire-todo">—</strong> da rimuovere
+        </div>
+        <div class="delist-stat">
+          <div class="dot" style="background:var(--shopify)"></div>
+          Shopify: <strong id="ds-shopify-todo">—</strong> da rimuovere
+        </div>
+      </div>
+    </div>
+
+    <div id="delist-toolbar">
+      <input id="delist-search" type="search" placeholder="Cerca SKU, brand…" autocomplete="off" />
+      <label class="toggle-wrap" id="toggle-removed-wrap">
+        <input type="checkbox" id="toggle-removed" />
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        Mostra già eliminati
+      </label>
+      <span id="delist-count"></span>
+    </div>
+
+    <div id="delist-board">
+      <div class="delist-col vinted" id="delist-col-Vinted">
+        <div class="delist-col-header">
+          <div class="delist-col-title">
+            <div class="delist-col-dot"></div>
+            Vinted
+          </div>
+          <span class="delist-col-badge" id="delist-badge-Vinted">—</span>
+        </div>
+        <div class="delist-col-body" id="delist-body-Vinted"></div>
+      </div>
+
+      <div class="delist-col vestiaire" id="delist-col-Vestiaire">
+        <div class="delist-col-header">
+          <div class="delist-col-title">
+            <div class="delist-col-dot"></div>
+            Vestiaire
+          </div>
+          <span class="delist-col-badge" id="delist-badge-Vestiaire">—</span>
+        </div>
+        <div class="delist-col-body" id="delist-body-Vestiaire"></div>
+      </div>
+
+      <div class="delist-col shopify" id="delist-col-Shopify">
+        <div class="delist-col-header">
+          <div class="delist-col-title">
+            <div class="delist-col-dot"></div>
+            Shopify
+          </div>
+          <span class="delist-col-badge" id="delist-badge-Shopify">—</span>
+        </div>
+        <div class="delist-col-body" id="delist-body-Shopify"></div>
+      </div>
+    </div>
+
+  </div><!-- /screen-delist -->
   <div id="setup-screen">
     <div class="setup-card">
       <h2>⚙ Configurazione</h2>
@@ -654,12 +933,13 @@
   /* ─── Platform config ─────────────────────────────────────
      targetField  : the Airtable field name inside Piattaforma multi-select
      uploadField  : the boolean checkbox field name in Airtable
+     removeField  : the boolean checkbox field for "annuncio eliminato"
      cssClass     : CSS variable key
   ───────────────────────────────────────────────────────────── */
   const PLATFORMS = [
-    { name: 'Vinted',    targetField: 'Vinted',    uploadField: 'Vinted',    cssClass: 'vinted'    },
-    { name: 'Vestiaire', targetField: 'Vestiaire', uploadField: 'Vestiaire', cssClass: 'vestiaire' },
-    { name: 'Shopify',   targetField: 'Shopify',   uploadField: 'Shopify',   cssClass: 'shopify'   },
+    { name: 'Vinted',    targetField: 'Vinted',    uploadField: 'Vinted',    removeField: 'Rimosso_Vinted',    cssClass: 'vinted'    },
+    { name: 'Vestiaire', targetField: 'Vestiaire', uploadField: 'Vestiaire', removeField: 'Rimosso_Vestiaire', cssClass: 'vestiaire' },
+    { name: 'Shopify',   targetField: 'Shopify',   uploadField: 'Shopify',   removeField: 'Rimosso_Shopify',   cssClass: 'shopify'   },
   ];
 
   /* ═══════════════════════════════════════════════════════════════
@@ -696,19 +976,27 @@
     const v = fields[uploadFieldName];
     return v === true || v === 1;
   }
+  function isRemoved(fields, removeFieldName) {
+    const v = fields[removeFieldName];
+    return v === true || v === 1;
+  }
 
   /* ═══════════════════════════════════════════════════════════════
      STATE
   ═══════════════════════════════════════════════════════════════ */
   const State = {
-    records:         [],
-    filtered:        [],
-    searchQuery:     '',
-    statusFilter:    '',
-    activeTab:       'all',        // 'all' | 'Vinted' | 'Vestiaire' | 'Shopify'
-    showPublished:   false,        // when on a platform tab, show already-uploaded items too
-    credentials:     null,
-    statusValues:    [],
+    records:          [],
+    filtered:         [],
+    searchQuery:      '',
+    statusFilter:     '',
+    activeTab:        'all',
+    showPublished:    false,
+    credentials:      null,
+    statusValues:     [],
+    // Delist screen state
+    activeScreen:     'inventory',   // 'inventory' | 'delist'
+    delistSearch:     '',
+    showRemoved:      false,
   };
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1430,6 +1718,7 @@
       updateTabCounts(records);
       populateStatusFilter(records);
       applyFilters();
+      renderDelistScreen();   // also refresh delist view
       setStatus(`${records.length} record`, 'success');
       showToast(`${records.length} record caricati`, 'success');
     } catch (err) {
@@ -1437,6 +1726,241 @@
       showToast(`Errore: ${err.message || err}`, 'error', 5000);
     } finally {
       setLoading(false);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     SCREEN SWITCHING
+  ═══════════════════════════════════════════════════════════════ */
+  function switchScreen(screen) {
+    State.activeScreen = screen;
+    document.querySelectorAll('.screen-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screen));
+    document.getElementById('screen-inventory').classList.toggle('active', screen === 'inventory');
+    document.getElementById('screen-delist').classList.toggle('active', screen === 'delist');
+    // Stats/tabs bar only visible in inventory
+    document.getElementById('platform-tabs').style.display   = screen === 'inventory' ? '' : 'none';
+    document.getElementById('stats-bar').style.display       = screen === 'inventory' ? '' : 'none';
+    document.getElementById('context-banner').style.display  = screen === 'inventory' ? '' : 'none';
+    if (screen === 'delist') renderDelistScreen();
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     DELIST SCREEN
+     A record appears in column P if:
+       Status === 'Venduto'
+       AND isUploaded(fields, P.uploadField) === true
+       AND (showRemoved OR !isRemoved(fields, P.removeField))
+  ═══════════════════════════════════════════════════════════════ */
+  function getDelistRecords() {
+    return State.records.filter(r => r.fields.Status === 'Venduto');
+  }
+
+  function updateDelistStats(soldRecords) {
+    PLATFORMS.forEach(p => {
+      const todo = soldRecords.filter(r =>
+        isUploaded(r.fields, p.uploadField) && !isRemoved(r.fields, p.removeField)
+      ).length;
+      const el = document.getElementById(`ds-${p.cssClass}-todo`);
+      if (el) el.textContent = todo;
+    });
+  }
+
+  function renderDelistScreen() {
+    const soldAll = getDelistRecords();
+    updateDelistStats(soldAll);
+
+    const q = State.delistSearch.toLowerCase().trim();
+
+    let total = 0;
+
+    PLATFORMS.forEach(p => {
+      const body  = document.getElementById(`delist-body-${p.name}`);
+      const badge = document.getElementById(`delist-badge-${p.name}`);
+      if (!body || !badge) return;
+
+      // Filter: must have been published on this platform
+      let cards = soldAll.filter(r => isUploaded(r.fields, p.uploadField));
+
+      // Filter: unless showRemoved, hide already-removed
+      if (!State.showRemoved) {
+        cards = cards.filter(r => !isRemoved(r.fields, p.removeField));
+      }
+
+      // Search filter
+      if (q) {
+        cards = cards.filter(r => {
+          const f = r.fields;
+          return [f.SKU, f.Brand, f.Colore, f.Taglia, f.Genere, fieldText(f.Titolo_Auto)]
+            .some(v => v && String(v).toLowerCase().includes(q));
+        });
+      }
+
+      badge.textContent = cards.length;
+      total += cards.length;
+      body.innerHTML = '';
+
+      if (!cards.length) {
+        const empty = document.createElement('div');
+        empty.className = 'delist-col-empty';
+        const icon = document.createElement('div');
+        icon.className = 'col-empty-icon'; icon.textContent = '✓';
+        const msg = document.createElement('p');
+        msg.textContent = State.showRemoved
+          ? 'Nessun articolo trovato.'
+          : `Nessun annuncio da eliminare su ${p.name}.`;
+        empty.appendChild(icon); empty.appendChild(msg);
+        body.appendChild(empty);
+      } else {
+        cards.forEach(record => {
+          body.appendChild(makeDelistCard(record, p));
+        });
+      }
+    });
+
+    // Update total count
+    const countEl = document.getElementById('delist-count');
+    if (countEl) countEl.textContent = `${total} annunci da eliminare`;
+  }
+
+  function makeDelistCard(record, platform) {
+    const f       = record.fields;
+    const removed = isRemoved(f, platform.removeField);
+
+    const card = document.createElement('div');
+    card.className = `delist-card${removed ? ' removed' : ''}`;
+    card.dataset.recordId = record.id;
+    card.dataset.platform = platform.name;
+
+    // Top row: info + price
+    const top = document.createElement('div');
+    top.className = 'delist-card-top';
+
+    const info = document.createElement('div');
+    info.className = 'delist-card-info';
+
+    const sku = document.createElement('div');
+    sku.className   = 'delist-card-sku';
+    sku.textContent = f.SKU || '—';
+    info.appendChild(sku);
+
+    const brand = document.createElement('div');
+    brand.className   = 'delist-card-brand';
+    brand.textContent = [f.Brand, f.Sottocategoria].filter(Boolean).join(' · ') || '—';
+    info.appendChild(brand);
+
+    const desc = document.createElement('div');
+    desc.className = 'delist-card-desc';
+    [[f.Taglia, '📐'], [f.Colore, '🎨'], [f.Condizione, '★']].forEach(([val, icon]) => {
+      if (!val) return;
+      const s = document.createElement('span');
+      s.textContent = `${icon} ${val}`;
+      desc.appendChild(s);
+    });
+    info.appendChild(desc);
+
+    top.appendChild(info);
+
+    if (f.Prezzo_Target != null) {
+      const price = document.createElement('div');
+      price.className   = 'delist-card-price';
+      price.textContent = `€${f.Prezzo_Target}`;
+      top.appendChild(price);
+    }
+
+    card.appendChild(top);
+
+    // Other platforms status row
+    const platformsRow = document.createElement('div');
+    platformsRow.className = 'delist-card-platforms';
+    PLATFORMS.forEach(op => {
+      if (!isUploaded(f, op.uploadField)) return; // was never published here
+      const pill = document.createElement('span');
+      const isRm = isRemoved(f, op.removeField);
+      pill.className   = `delist-pstatus ${isRm ? 'removed' : 'pending'}`;
+      pill.textContent = `${isRm ? '✓' : '✗'} ${op.name}`;
+      platformsRow.appendChild(pill);
+    });
+    if (platformsRow.children.length) card.appendChild(platformsRow);
+
+    // Delist button
+    const btn = document.createElement('button');
+    btn.className  = `btn-delist${removed ? ' done' : ''}`;
+    btn.disabled   = removed;
+    btn.innerHTML  = `<div class="btn-delist-spinner"></div><span class="btn-delist-label">${removed ? '✓ Eliminato' : '✓ Segna come Eliminato'}</span>`;
+    btn.addEventListener('click', () => handleDelistToggle(record.id, platform, true, btn, card));
+    card.appendChild(btn);
+
+    return card;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     DELIST TOGGLE  — patches removeField to true on Airtable
+  ═══════════════════════════════════════════════════════════════ */
+  async function handleDelistToggle(recordId, platform, newValue, btnEl, cardEl) {
+    const record = State.records.find(r => r.id === recordId);
+    if (!record) return;
+
+    const prevValue = isRemoved(record.fields, platform.removeField);
+
+    // Optimistic update
+    record.fields[platform.removeField] = newValue;
+    btnEl.classList.add('loading');
+    btnEl.disabled = true;
+
+    try {
+      await API.patchRecord(recordId, { [platform.removeField]: newValue });
+
+      // Animate card out
+      cardEl.classList.add('removing');
+      setTimeout(() => {
+        if (!State.showRemoved) {
+          cardEl.remove();
+          // Check if column is now empty
+          const body  = document.getElementById(`delist-body-${platform.name}`);
+          const badge = document.getElementById(`delist-badge-${platform.name}`);
+          if (body && !body.children.length) {
+            const empty = document.createElement('div');
+            empty.className = 'delist-col-empty';
+            const icon = document.createElement('div');
+            icon.className = 'col-empty-icon'; icon.textContent = '✓';
+            const msg = document.createElement('p');
+            msg.textContent = `Nessun annuncio da eliminare su ${platform.name}.`;
+            empty.appendChild(icon); empty.appendChild(msg);
+            body.appendChild(empty);
+          }
+          if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+        } else {
+          // Stay visible but dimmed, update button
+          cardEl.classList.remove('removing');
+          cardEl.classList.add('removed');
+          btnEl.classList.remove('loading');
+          btnEl.classList.add('done');
+          btnEl.innerHTML = `<span class="btn-delist-label">✓ Eliminato</span>`;
+          btnEl.disabled = true;
+        }
+        updateDelistStats(getDelistRecords());
+        const countEl = document.getElementById('delist-count');
+        if (countEl) {
+          const total = PLATFORMS.reduce((acc, p) => {
+            return acc + getDelistRecords().filter(r =>
+              isUploaded(r.fields, p.uploadField) && !isRemoved(r.fields, p.removeField)
+            ).length;
+          }, 0);
+          countEl.textContent = `${total} annunci da eliminare`;
+        }
+      }, 420);
+
+      showToast(`✓ ${platform.name}: annuncio segnato come eliminato`, 'success');
+      Debug.log('DELIST', `/${recordId}`, 200, `${platform.removeField}=true`);
+
+    } catch (err) {
+      // Rollback
+      record.fields[platform.removeField] = prevValue;
+      cardEl.classList.remove('removing');
+      btnEl.classList.remove('loading');
+      btnEl.disabled = false;
+      showToast(`Errore ${platform.name}: ${err.message}`, 'error');
+      Debug.log('DELIST', `/${recordId}`, err.status || 500, err.message);
     }
   }
 
@@ -1454,6 +1978,11 @@
     document.getElementById('btn-save-setup').addEventListener('click', saveSetup);
     document.getElementById('input-table').addEventListener('keydown', e => { if (e.key === 'Enter') saveSetup(); });
 
+    // Screen switcher
+    document.querySelectorAll('.screen-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
+    });
+
     document.getElementById('search-input').addEventListener('input',
       debounce(e => { State.searchQuery = e.target.value; applyFilters(); }, 300)
     );
@@ -1467,6 +1996,15 @@
       updateContextBanner();
     });
 
+    // Delist search + toggle
+    document.getElementById('delist-search').addEventListener('input',
+      debounce(e => { State.delistSearch = e.target.value; renderDelistScreen(); }, 300)
+    );
+    document.getElementById('toggle-removed').addEventListener('change', e => {
+      State.showRemoved = e.target.checked;
+      renderDelistScreen();
+    });
+
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1476,7 +2014,6 @@
         State.showPublished  = false;
         document.getElementById('toggle-published').checked = false;
 
-        // Show/hide the published toggle on platform tabs
         document.getElementById('toggle-published-wrap').style.display =
           State.activeTab !== 'all' ? 'flex' : 'none';
 
@@ -1498,7 +2035,7 @@
     window.onunhandledrejection = e => Debug.log('REJECT', 'promise', 500,
       ((e.reason && e.reason.message) ? e.reason.message : String(e.reason)).slice(0,100));
 
-    Debug.log('INIT', 'app', 200, 'Airtable Publisher v4 — tab-based platform workflow');
+    Debug.log('INIT', 'app', 200, 'Airtable Publisher v5 — delist screen added');
   });
   </script>
 </body>
