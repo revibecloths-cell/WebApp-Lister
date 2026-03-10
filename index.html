@@ -1168,9 +1168,21 @@
   function renderTableHeader() {
     const row = document.getElementById('table-head-row');
     row.innerHTML = '';
+    // Column order: SKU | Foto | Piattaforma | Sottocategoria | Brand | Colore | Taglia | Condizione | Prezzo | Titolo | Descrizione
     const cols = [
       { label: 'SKU' },
-      { label: 'Genere' },
+      { label: 'Foto' },
+    ];
+
+    if (State.activeTab === 'all') {
+      cols.push({ label: 'Piattaforme' });
+    } else {
+      const p = PLATFORMS.find(x => x.name === State.activeTab);
+      cols.push({ label: `Pubblicato`, cls: `th-upload ${p.cssClass}` });
+    }
+
+    cols.push(
+      { label: 'Sottocategoria' },
       { label: 'Brand' },
       { label: 'Colore' },
       { label: 'Taglia' },
@@ -1178,17 +1190,7 @@
       { label: 'Prezzo' },
       { label: 'Titolo' },
       { label: 'Descrizione' },
-      { label: 'Drive' },
-    ];
-
-    if (State.activeTab === 'all') {
-      // In "all" view, show platform targets as a single column
-      cols.push({ label: 'Piattaforme' });
-    } else {
-      // In platform tab, show the upload checkbox for that platform
-      const p = PLATFORMS.find(x => x.name === State.activeTab);
-      cols.push({ label: `Pubblicato su ${p.name}`, cls: `th-upload ${p.cssClass}` });
-    }
+    );
     cols.push({ label: '' }); // detail button
 
     cols.forEach((c, i) => {
@@ -1317,48 +1319,18 @@
         tr.classList.add('row-published');
       }
 
-      /* SKU sticky */
+      /* 1 — SKU sticky */
       const tdSku = document.createElement('td');
       tdSku.className = 'td-sku'; tdSku.textContent = f.SKU || '—'; tdSku.title = 'Apri dettaglio';
       tdSku.addEventListener('click', () => openModal(record));
       tr.appendChild(tdSku);
 
-      /* Genere */
-      const tdG = document.createElement('td');
-      tdG.className = 'td-muted td-trunc'; tdG.textContent = f.Genere || '—'; tr.appendChild(tdG);
-
-      /* Brand */
-      const tdB = document.createElement('td');
-      tdB.className = 'td-brand'; tdB.textContent = f.Brand || '—'; tr.appendChild(tdB);
-
-      /* Colore */
-      const tdC = document.createElement('td');
-      tdC.className = 'td-muted'; tdC.textContent = f.Colore || '—'; tr.appendChild(tdC);
-
-      /* Taglia */
-      const tdT = document.createElement('td');
-      tdT.className = 'td-muted'; tdT.textContent = f.Taglia || '—'; tr.appendChild(tdT);
-
-      /* Condizione */
-      const tdCond = document.createElement('td');
-      tdCond.className = 'td-muted'; tdCond.textContent = f.Condizione || '—'; tr.appendChild(tdCond);
-
-      /* Prezzo */
-      const tdP = document.createElement('td');
-      tdP.className = 'td-price'; tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—'; tr.appendChild(tdP);
-
-      /* Titolo_Auto */
-      tr.appendChild(makeCopyCell(f.Titolo_Auto, 40));
-
-      /* Descrizione_Auto */
-      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 40));
-
-      /* Drive */
+      /* 2 — Foto Drive */
       const tdDrive = document.createElement('td');
       const driveUrl = fieldUrl(f['Foto Drive']);
       if (driveUrl) {
         const btnOpen = document.createElement('button');
-        btnOpen.className = 'btn-drive'; btnOpen.textContent = '📁 Apri'; btnOpen.title = 'Apri cartella Drive';
+        btnOpen.className = 'btn-drive'; btnOpen.textContent = '📁 Foto'; btnOpen.title = 'Apri cartella Drive';
         btnOpen.addEventListener('click', e => { e.stopPropagation(); openDriveFolder(driveUrl); });
         tdDrive.appendChild(btnOpen);
       } else {
@@ -1366,9 +1338,8 @@
       }
       tr.appendChild(tdDrive);
 
-      /* Platform column — differs by tab */
+      /* 3 — Platform column (varies by tab) */
       if (State.activeTab === 'all') {
-        /* Show target pills for all platforms */
         const tdPills = document.createElement('td');
         const pillsWrap = document.createElement('div');
         pillsWrap.className = 'target-pills';
@@ -1387,28 +1358,55 @@
         }
         tr.appendChild(tdPills);
       } else {
-        /* Show upload checkbox for the active platform */
         const p = activePlatform;
         const uploaded = isUploaded(f, p.uploadField);
-
         const td = document.createElement('td');
         td.className = 'upload-cb-cell';
-
         const wrap = document.createElement('div');
         wrap.className = `upload-cb-wrap ${p.cssClass}${uploaded ? ' checked' : ''}`;
         wrap.title = uploaded ? 'Pubblicato — clicca per annullare' : 'Non ancora pubblicato — clicca per confermare';
-
         const check = document.createElement('span');
         check.className = 'cb-check'; check.textContent = '✓';
         wrap.appendChild(check);
-
         const spinner = document.createElement('div');
         spinner.className = 'cb-spinner-inner';
         wrap.appendChild(spinner);
-
         wrap.addEventListener('click', () =>
           handleUploadToggle(record.id, p, !uploaded, wrap, tr)
         );
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      }
+
+      /* 4 — Sottocategoria */
+      const tdSub = document.createElement('td');
+      tdSub.className = 'td-muted td-trunc'; tdSub.textContent = f.Sottocategoria || '—'; tr.appendChild(tdSub);
+
+      /* 5 — Brand */
+      const tdB = document.createElement('td');
+      tdB.className = 'td-brand'; tdB.textContent = f.Brand || '—'; tr.appendChild(tdB);
+
+      /* 6 — Colore */
+      const tdC = document.createElement('td');
+      tdC.className = 'td-muted'; tdC.textContent = f.Colore || '—'; tr.appendChild(tdC);
+
+      /* 7 — Taglia */
+      const tdT = document.createElement('td');
+      tdT.className = 'td-muted'; tdT.textContent = f.Taglia || '—'; tr.appendChild(tdT);
+
+      /* 8 — Condizione */
+      const tdCond = document.createElement('td');
+      tdCond.className = 'td-muted'; tdCond.textContent = f.Condizione || '—'; tr.appendChild(tdCond);
+
+      /* 9 — Prezzo */
+      const tdP = document.createElement('td');
+      tdP.className = 'td-price'; tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—'; tr.appendChild(tdP);
+
+      /* 10 — Titolo_Auto */
+      tr.appendChild(makeCopyCell(f.Titolo_Auto, 40));
+
+      /* 11 — Descrizione_Auto */
+      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 40));
         td.appendChild(wrap);
         tr.appendChild(td);
       }
