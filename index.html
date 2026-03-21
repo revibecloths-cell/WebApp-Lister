@@ -1223,7 +1223,7 @@
     if (q) {
       recs = recs.filter(r => {
         const f = r.fields;
-        return [f.SKU, f.Brand, f.Sottocategoria, f.Genere, f.Colore, f.Condizione, fieldText(f.Titolo_Auto)]
+        return [f.SKU, f.Brand, f.Sottocategoria, f.Genere, f.Colore, f.Condizione, fieldText(f['Titolo Auto'])]
           .some(v => v && String(v).toLowerCase().includes(q));
       });
     }
@@ -1402,11 +1402,11 @@
       const tdP = document.createElement('td');
       tdP.className = 'td-price'; tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—'; tr.appendChild(tdP);
 
-      /* 10 — Titolo_Auto */
-      tr.appendChild(makeCopyCell(f.Titolo_Auto, 40));
+      /* 10 — Titolo Auto */
+      tr.appendChild(makeCopyCell(f['Titolo Auto'], 40));
 
-      /* 11 — Descrizione_Auto */
-      tr.appendChild(makeCopyCell(f.Descrizione_Auto, 40));
+      /* 11 — Descrizione Auto */
+      tr.appendChild(makeCopyCell(f['Descrizione Auto'], 40));
 
       /* Detail button */
       const tdAct = document.createElement('td');
@@ -1535,8 +1535,8 @@
 
     // Long text fields with copy
     [
-      ['Titolo Auto',      f.Titolo_Auto],
-      ['Descrizione Auto', f.Descrizione_Auto],
+      ['Titolo Auto',      f['Titolo Auto']],
+      ['Descrizione Auto', f['Descrizione Auto']],
       ['Dettagli',         f.Dettagli],
     ].forEach(([label, rawVal]) => {
       const text = fieldText(rawVal);
@@ -1742,7 +1742,7 @@
       if (q) {
         cards = cards.filter(r => {
           const f = r.fields;
-          return [f.SKU, f.Brand, f.Colore, f.Taglia, f.Genere, fieldText(f.Titolo_Auto)]
+          return [f.SKU, f.Brand, f.Colore, f.Taglia, f.Genere, fieldText(f['Titolo Auto'])]
             .some(v => v && String(v).toLowerCase().includes(q));
         });
       }
