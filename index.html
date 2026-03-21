@@ -210,9 +210,20 @@
     #table-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 8px; overflow: hidden; flex: 1;
+      display: flex; flex-direction: column;
     }
-    #table-wrapper { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 270px); }
-    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    #table-wrapper {
+      overflow-x: auto; overflow-y: auto;
+      max-height: calc(100vh - 270px);
+      flex: 1;
+    }
+    /* Scrollbar sempre visibile e stilizzata */
+    #table-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
+    #table-wrapper::-webkit-scrollbar-track { background: var(--surface2); }
+    #table-wrapper::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; border: 2px solid var(--surface2); }
+    #table-wrapper::-webkit-scrollbar-thumb:hover { background: #666; }
+    #table-wrapper::-webkit-scrollbar-corner { background: var(--surface2); }
+    table { width: 100%; border-collapse: collapse; min-width: 1400px; }
 
     thead th {
       background: var(--surface2); padding: 10px 10px;
@@ -1223,7 +1234,7 @@
     if (q) {
       recs = recs.filter(r => {
         const f = r.fields;
-        return [f.SKU, f.Brand, f.Sottocategoria, f.Genere, f.Colore, f.Condizione, fieldText(f['Titolo Auto'])]
+        return [f.SKU, f.Brand, f.Sottocategoria, f.Genere, f.Colore, f.Condizione, fieldText(f['Titolo Auto'] || f['Titolo_Auto'])]
           .some(v => v && String(v).toLowerCase().includes(q));
       });
     }
@@ -1402,11 +1413,11 @@
       const tdP = document.createElement('td');
       tdP.className = 'td-price'; tdP.textContent = (f.Prezzo_Target != null) ? `€${f.Prezzo_Target}` : '—'; tr.appendChild(tdP);
 
-      /* 10 — Titolo Auto */
-      tr.appendChild(makeCopyCell(f['Titolo Auto'], 40));
+      /* 10 — Titolo Auto (fallback su entrambi i possibili nomi) */
+      tr.appendChild(makeCopyCell(f['Titolo Auto'] || f['Titolo_Auto'], 40));
 
-      /* 11 — Descrizione Auto */
-      tr.appendChild(makeCopyCell(f['Descrizione Auto'], 40));
+      /* 11 — Descrizione Auto (fallback su entrambi i possibili nomi) */
+      tr.appendChild(makeCopyCell(f['Descrizione Auto'] || f['Descrizione_Auto'], 40));
 
       /* Detail button */
       const tdAct = document.createElement('td');
@@ -1535,8 +1546,8 @@
 
     // Long text fields with copy
     [
-      ['Titolo Auto',      f['Titolo Auto']],
-      ['Descrizione Auto', f['Descrizione Auto']],
+      ['Titolo Auto',      f['Titolo Auto'] || f['Titolo_Auto']],
+      ['Descrizione Auto', f['Descrizione Auto'] || f['Descrizione_Auto']],
       ['Dettagli',         f.Dettagli],
     ].forEach(([label, rawVal]) => {
       const text = fieldText(rawVal);
@@ -1658,6 +1669,13 @@
     try {
       const records = await API.fetchAllRecords();
       State.records = records;
+      // DEBUG: logga i nomi esatti dei campi del primo record per verificare il mapping
+      if (records.length > 0) {
+        const keys = Object.keys(records[0].fields);
+        const descKey = keys.find(k => k.toLowerCase().includes('descri')) || '(non trovato)';
+        const titKey  = keys.find(k => k.toLowerCase().includes('titol'))  || '(non trovato)';
+        Debug.log('FIELDS', 'keys', 200, `Titolo="${titKey}" | Descrizione="${descKey}"`);
+      }
       updateStats(records);
       updateTabCounts(records);
       populateStatusFilter(records);
